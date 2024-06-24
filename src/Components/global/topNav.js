@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
-export default function TopNav({hasBackArrow = false}){
+export default function TopNav({hasBackArrow = false, title = ""}){
     navigation = useNavigation()
     return(
         <>
@@ -12,6 +12,7 @@ export default function TopNav({hasBackArrow = false}){
             <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
                 <Ionicons name="chevron-back" size = {30} color ={"#232020"} />
             </TouchableWithoutFeedback>
+            <Text style={styles.nav_title}>{title}</Text>
         </View>:
 
         <View style={styles.container}>
@@ -41,6 +42,13 @@ const styles = StyleSheet.create({
     iconContainer:{
         flexDirection: "row",
         gap: 20
+    },
+    nav_title:{
+        fontSize: 24,
+        color: "#232020",
+        marginLeft: "auto",
+        marginRight: "auto",
+        paddingRight: 10
     }
     
 })
