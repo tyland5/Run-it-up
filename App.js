@@ -20,7 +20,7 @@ function HomeStackScreen() {
   return (
     <HomeStack.Navigator>
       <HomeStack.Screen options= {{header: () => <TopNav />}} name="Home" component={HomeFeed} />
-      <HomeStack.Screen name="ExpandedPost" component={ExpandedPost} />
+      <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} />}} name="ExpandedPost" component={ExpandedPost} />
     </HomeStack.Navigator>
   );
 }

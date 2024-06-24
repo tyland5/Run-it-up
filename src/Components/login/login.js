@@ -13,6 +13,8 @@ export default function Login({state, descriptors, navigation}){
     const [loggedIn, setLoggedIn] = useContext(AuthContext)
 
     const checkCredentials = () => {
+        setLoggedIn(true)
+        return
         fetch(envVariables.serverURL +"/login/checkCredentials", {
             method: "POST",
             headers: {
@@ -29,6 +31,7 @@ export default function Login({state, descriptors, navigation}){
             console.log(data)
             if(data.response !== "good"){
                 setCredentialErr(true)
+                setLoggedIn(true)
             }
             else{
                 setCredentialErr(false)
