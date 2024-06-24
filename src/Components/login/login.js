@@ -29,6 +29,7 @@ export default function Login({state, descriptors, navigation}){
             console.log(data)
             if(data.response !== "good"){
                 setCredentialErr(true)
+                setLoggedIn(true)
             }
             else{
                 setCredentialErr(false)
