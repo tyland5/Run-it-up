@@ -1,0 +1,191 @@
+import { useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import {Keyboard, StyleSheet, TouchableOpacity, TextInput, Text, TouchableWithoutFeedback, View, ScrollView, Platform, KeyboardAvoidingView} from 'react-native';
+import { useHeaderHeight } from '@react-navigation/elements'
+
+const envVariables = require('../../../envVariables.json');
+
+export default function Register(){
+
+    const [formData, setFormData] = useState({
+        username: '',
+        password: '',
+        confirmPass: '',
+        fname: '',
+        lname: '',
+        email: ''
+    })
+
+    const [formErr, setFormErr] = useState({
+        username: false,
+        password: false,
+        confirmPass: false,
+        fname: false,
+        lname: false,
+        email: false
+    })
+
+    const headerHeight = useHeaderHeight()
+    const navigation = useNavigation()
+
+    function handleRegister(){
+        let numErr = 0
+        const err = {
+            username: false,
+            password: false,
+            confirmPass: false,
+            fname: false,
+            lname: false,
+            email: false
+        }
+        
+        if(formData.username.length < 1){
+            numErr += 1
+            err.username = true
+        }
+        if (formData.email.length == 0 || !formData.email.match(/\S+@\S+\.\S+/) ){
+            err.email = true
+            numErr += 1
+        }
+        if(formData.password.length < 12){
+            numErr += 1
+            err.password = true
+        }
+        if(formData.confirmPass !== formData.password){
+            numErr += 1
+            err.confirmPass = true
+        }
+        if(formData.fname < 1){
+            numErr += 1
+            err.fname = true
+        }
+        if(formData.lname < 1){
+            numErr += 1
+            err.lname = true
+        }
+        
+        setFormErr(err)
+
+        if(numErr === 0){
+            /*
+            fetch(envVariables.serverURL +"/login/register", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                   Accept : "application/json",
+                },
+                body: JSON.stringify({
+                    email:email
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                if(data.response === "good"){
+                    navigation.navigate("Confirmation")
+                }
+            })
+            */
+            navigation.navigate("Confirmation")
+        }
+        
+    }
+
+    return(
+    <KeyboardAvoidingView
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    keyboardVerticalOffset={headerHeight}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <ScrollView style={{backgroundColor:"#121212"}}>
+            <View style={styles.container}>
+                <View style={{height:30}}></View>
+                
+                <Text style={styles.inputLabel}>Username <Text style={styles.mandatory}>*</Text> </Text>
+                <TextInput style={styles.input} placeholder='Username' placeholderTextColor="gray" value={formData.username} onChangeText={(val) => setFormData({...formData, username:val})}></TextInput>
+                {formErr.username ? <Text style={styles.error}>Please enter a non empty username</Text> : <></>}
+
+                <Text style={styles.inputLabel}>First Name <Text style={styles.mandatory}>*</Text> </Text>
+                <TextInput style={styles.input} placeholder='First Name' placeholderTextColor="gray" value={formData.fname} onChangeText={(val) => setFormData({...formData, fname:val})}></TextInput>
+                {formErr.fname ? <Text style={styles.error}>Please enter a non empty first name</Text> : <></>}
+
+                <Text style={styles.inputLabel}>Last Name <Text style={styles.mandatory}>*</Text> </Text>
+                <TextInput style={styles.input} placeholder='Last name' placeholderTextColor="gray" value={formData.lname} onChangeText={(val) => setFormData({...formData, lname:val})}></TextInput>
+                {formErr.lname ? <Text style={styles.error}>Please enter a non empty last name</Text> : <></>}
+
+                <Text style={styles.inputLabel}>Email <Text style={styles.mandatory}>*</Text> </Text>
+                <TextInput style={styles.input} placeholder='Email' placeholderTextColor="gray" value={formData.email} onChangeText={(val) => setFormData({...formData, email:val})}></TextInput>
+                {formErr.email ? <Text style={styles.error}>Please enter a valid email</Text> : <></>}
+
+                <Text style={styles.inputLabel}>Password <Text style={styles.mandatory}>*</Text> </Text>
+                <TextInput style={styles.input} placeholder='Password' placeholderTextColor="gray" value={formData.password} onChangeText={(val) => setFormData({...formData, password:val})}></TextInput>
+                {formErr.password ? <Text style={styles.error}>Please enter a password of at least 12 characters</Text> : <></>}
+
+                <Text style={styles.inputLabel}>Confirm Password <Text style={styles.mandatory}>*</Text> </Text>
+                <TextInput style={styles.input} placeholder='Confirm password' placeholderTextColor="gray" value={formData.confirmPass} onChangeText={(val) => setFormData({...formData, confirmPass:val})}></TextInput>
+                {formErr.confirmPass ? <Text style={styles.error}>Passwords do not match</Text> : <></>}
+
+                <TouchableOpacity style={styles.button} onPress={handleRegister}>
+                    <Text style={styles.button_text}>Register</Text>
+                </TouchableOpacity>
+            </View>
+        </ScrollView>
+    </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
+    );
+}
+
+const styles = StyleSheet.create({
+    container:{
+        backgroundColor: "#121212",
+        flex:1,
+        alignItems:'center'
+    },
+    header:{
+        color:"white",
+        fontSize:24,
+        marginBottom: 20
+    },
+    input:{
+        width:"80%",
+        color:"white",
+        padding:10,
+        fontSize:16,
+        borderWidth:2,
+        borderColor:"white",
+        borderRadius: 8,
+        marginBottom: 30
+    },
+    mandatory:{
+        color:"red",
+        fontSize:16
+    },
+    inputLabel:{
+        color:"white",
+        fontSize: 16,
+        alignSelf: "flex-start",
+        marginLeft: "10%",
+        marginBottom: 10
+    },
+    error:{
+        position: 'relative',
+        color: 'red',
+        bottom: 20,
+        fontSize: 16,
+        alignSelf: "flex-start",
+        marginLeft: "10%",
+    },
+    button:{
+        width:150,
+        height: 70,
+        backgroundColor:"#F57600",
+        alignItems:"center",
+        justifyContent:"center",
+        borderRadius: 8,
+        marginBottom: 60
+    },
+    button_text:{
+        color:"white",
+        fontSize:18,
+        fontWeight:"bold"
+    }
+})
