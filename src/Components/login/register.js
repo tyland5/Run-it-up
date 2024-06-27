@@ -22,13 +22,15 @@ export default function Register(){
         confirmPass: false,
         fname: false,
         lname: false,
-        email: false
+        email: false,
+        usernameDup: false,
+        emailDup: false
     })
 
     const headerHeight = useHeaderHeight()
     const navigation = useNavigation()
 
-    function handleRegister(){
+    async function handleRegister(){
         let numErr = 0
         const err = {
             username: false,
@@ -36,7 +38,9 @@ export default function Register(){
             confirmPass: false,
             fname: false,
             lname: false,
-            email: false
+            email: false,
+            usernameDup: false,
+            emailDup: false
         }
         
         if(formData.username.length < 1){
@@ -64,31 +68,50 @@ export default function Register(){
             err.lname = true
         }
         
-        setFormErr(err)
+
+        // Check if a created account has the same username or email
+        const res = await fetch(envVariables.serverURL + "/login/checkUsernameEmail", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+               Accept : "application/json",
+            },
+            body: JSON.stringify({
+                email:formData.email,
+                username: formData.username
+            }),
+        });
+
+        const jsonRes = await res.json();
+        err.usernameDup = !jsonRes.validUser
+        err.emailDup = !jsonRes.validEmail
+        
+        if(!jsonRes.validUser || !jsonRes.validEmail || !jsonRes.response === "bad"){
+            numErr += 1
+        }
 
         if(numErr === 0){
-            /*
-            fetch(envVariables.serverURL +"/login/register", {
+            
+            fetch(envVariables.serverURL +"/login/confirmEmail", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
                    Accept : "application/json",
                 },
                 body: JSON.stringify({
-                    email:email
+                    email:formData.email
                 }),
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data)
                 if(data.response === "good"){
-                    navigation.navigate("Confirmation")
+                    navigation.navigate("Confirmation", {generatedCode: data.confCode, accountDetails: formData})
                 }
             })
-            */
-            navigation.navigate("Confirmation")
+            
         }
-        
+
+        setFormErr(err)
     }
 
     return(
@@ -101,8 +124,9 @@ export default function Register(){
                 <View style={{height:30}}></View>
                 
                 <Text style={styles.inputLabel}>Username <Text style={styles.mandatory}>*</Text> </Text>
-                <TextInput style={styles.input} placeholder='Username' placeholderTextColor="gray" value={formData.username} onChangeText={(val) => setFormData({...formData, username:val})}></TextInput>
+                <TextInput style={styles.input} placeholder='Username' placeholderTextColor="gray" value={formData.username} onChangeText={(val) => setFormData({...formData, username:val.toLowerCase()})}></TextInput>
                 {formErr.username ? <Text style={styles.error}>Please enter a non empty username</Text> : <></>}
+                {formErr.usernameDup ? <Text style={styles.error}>This username is already taken</Text> : <></>}
 
                 <Text style={styles.inputLabel}>First Name <Text style={styles.mandatory}>*</Text> </Text>
                 <TextInput style={styles.input} placeholder='First Name' placeholderTextColor="gray" value={formData.fname} onChangeText={(val) => setFormData({...formData, fname:val})}></TextInput>
@@ -113,15 +137,16 @@ export default function Register(){
                 {formErr.lname ? <Text style={styles.error}>Please enter a non empty last name</Text> : <></>}
 
                 <Text style={styles.inputLabel}>Email <Text style={styles.mandatory}>*</Text> </Text>
-                <TextInput style={styles.input} placeholder='Email' placeholderTextColor="gray" value={formData.email} onChangeText={(val) => setFormData({...formData, email:val})}></TextInput>
+                <TextInput style={styles.input} placeholder='Email' placeholderTextColor="gray" value={formData.email} onChangeText={(val) => setFormData({...formData, email:val.toLowerCase()})}></TextInput>
                 {formErr.email ? <Text style={styles.error}>Please enter a valid email</Text> : <></>}
+                {formErr.emailDup ? <Text style={styles.error}>This email is already in use</Text> : <></>}
 
                 <Text style={styles.inputLabel}>Password <Text style={styles.mandatory}>*</Text> </Text>
-                <TextInput style={styles.input} placeholder='Password' placeholderTextColor="gray" value={formData.password} onChangeText={(val) => setFormData({...formData, password:val})}></TextInput>
+                <TextInput secureTextEntry = {true} style={styles.input} placeholder='Password' placeholderTextColor="gray" value={formData.password} onChangeText={(val) => setFormData({...formData, password:val})}></TextInput>
                 {formErr.password ? <Text style={styles.error}>Please enter a password of at least 12 characters</Text> : <></>}
 
                 <Text style={styles.inputLabel}>Confirm Password <Text style={styles.mandatory}>*</Text> </Text>
-                <TextInput style={styles.input} placeholder='Confirm password' placeholderTextColor="gray" value={formData.confirmPass} onChangeText={(val) => setFormData({...formData, confirmPass:val})}></TextInput>
+                <TextInput secureTextEntry = {true} style={styles.input} placeholder='Confirm password' placeholderTextColor="gray" value={formData.confirmPass} onChangeText={(val) => setFormData({...formData, confirmPass:val})}></TextInput>
                 {formErr.confirmPass ? <Text style={styles.error}>Passwords do not match</Text> : <></>}
 
                 <TouchableOpacity style={styles.button} onPress={handleRegister}>

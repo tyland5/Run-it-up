@@ -1,16 +1,44 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {Keyboard, StyleSheet, TouchableOpacity, TextInput, Text, TouchableWithoutFeedback, View, ScrollView} from 'react-native';
 import { useContext } from 'react';
 import { AuthContext } from './authContext';
 
 const envVariables = require('../../../envVariables.json');
 
-export default function EmailConfirm(){
+// we are putting the email confirmation code in route param only to enforce a seamless register process
+export default function EmailConfirm({route}){
 
     const [confCode, setConfCode] = useState('')
+    const {generatedCode, accountDetails} = route.params
+    const [loggedIn, setLoggedIn] = useContext(AuthContext)
+    const [showErr, setShowErr] = useState(false)
 
-    function handleConfirm(){
-        console.log("OOF")
+    useEffect(()=>{
+        console.log(generatedCode)
+        console.log(accountDetails)
+    }, [])
+
+    async function handleConfirm(){
+        if(confCode === generatedCode){
+            const res = await fetch(envVariables.serverURL + "/login/register", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                   Accept : "application/json",
+                },
+                body: JSON.stringify({
+                    accountDetails: accountDetails
+                }),
+            });
+    
+            const jsonRes = await res.json();
+            if(jsonRes.response === "good"){
+                setLoggedIn(true)
+            }
+        }
+        else{
+            setShowErr(true)
+        }
     }
 
     return(
@@ -18,6 +46,7 @@ export default function EmailConfirm(){
         <View style={{height:30}}></View>
         <Text style={styles.inputLabel}>We've sent you an email with a confirmation code. Please enter it</Text> 
         <TextInput style={styles.input} placeholder='Confirmation Code' placeholderTextColor="gray" value ={confCode} onChangeText={(code) => setConfCode(code)}></TextInput>
+        {showErr ? <Text style={styles.error}>Code entered does not match</Text> : <></>}
 
         <TouchableOpacity style={styles.button} onPress={handleConfirm}>
             <Text style={styles.button_text}>Submit</Text>
@@ -48,6 +77,14 @@ const styles = StyleSheet.create({
         alignSelf: "flex-start",
         marginLeft: "10%",
         marginBottom: 10
+    },
+    error:{
+        position: 'relative',
+        color: 'red',
+        bottom: 20,
+        fontSize: 16,
+        alignSelf: "flex-start",
+        marginLeft: "10%",
     },
     button:{
         width:150,
