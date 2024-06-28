@@ -46,7 +46,7 @@ export default function Login(){
         <View style={styles.container}>
             
             <Text style={styles.title}>Run It Up</Text>
-            <TextInput style={styles.input} placeholder='Username' placeholderTextColor="gray" value={username} onChangeText={(user) => setUsername(user)}></TextInput>
+            <TextInput style={styles.input} placeholder='Username' placeholderTextColor="gray" value={username} onChangeText={(user) => setUsername(user.toLowerCase())}></TextInput>
             <TextInput secureTextEntry = {true} style={styles.input} placeholder='Password' placeholderTextColor="gray" value ={password} onChangeText={(pw) => setPassword(pw)}></TextInput>
 
             <TouchableOpacity style={styles.button} onPress={checkCredentials}>
@@ -59,7 +59,7 @@ export default function Login(){
                 <TouchableWithoutFeedback onPress={()=>navigation.navigate("Register")}><Text style={[styles.text, {textDecorationLine: 'underline'}]}>Register</Text></TouchableWithoutFeedback>
             </Text>
             <View style={{marginBottom:20}}></View>
-            <Text style={[styles.text, {textDecorationLine: 'underline'}]}>Forgot Password</Text>
+            <TouchableWithoutFeedback onPress={()=>navigation.navigate("ForgotPassword")}><Text style={[styles.text, {textDecorationLine: 'underline'}]}>Forgot Password</Text></TouchableWithoutFeedback>
         </View>
     </TouchableWithoutFeedback>
     );

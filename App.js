@@ -7,6 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Login from './src/Components/login/login';
 import Register from './src/Components/login/register';
 import EmailConfirm from './src/Components/login/emailConfirm';
+import ForgotPassword from './src/Components/login/forgotPassword';
 import HomeFeed from './src/Components/home/homeFeed';
 import ExpandedPost from './src/Components/post/expandedPost';
 import TopNav from './src/Components/global/topNav';
@@ -23,6 +24,7 @@ function LoginStackScreen() {
       <LoginStack.Screen options = {{headerShown:false}} name="Login" component={Login}/>
       <LoginStack.Screen name="Register" component={Register}/>
       <LoginStack.Screen name="Confirmation" component={EmailConfirm}/>
+      <LoginStack.Screen name="ForgotPassword" component={ForgotPassword}/>
     </LoginStack.Navigator>
   )
 }

@@ -70,38 +70,19 @@ export default function Register(){
         
 
         // Check if a created account has the same username or email
-        const res = await fetch(envVariables.serverURL + "/login/checkUsernameEmail", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-               Accept : "application/json",
-            },
-            body: JSON.stringify({
-                email:formData.email,
-                username: formData.username
-            }),
-        });
+        const res = await fetch(envVariables.serverURL + "/login/checkUsernameEmail?" + new URLSearchParams({email:formData.email, username: formData.username}));
 
         const jsonRes = await res.json();
         err.usernameDup = !jsonRes.validUser
         err.emailDup = !jsonRes.validEmail
         
-        if(!jsonRes.validUser || !jsonRes.validEmail || !jsonRes.response === "bad"){
+        if(jsonRes.response === "bad" || !jsonRes.validUser || !jsonRes.validEmail){
             numErr += 1
         }
 
         if(numErr === 0){
             
-            fetch(envVariables.serverURL +"/login/confirmEmail", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                   Accept : "application/json",
-                },
-                body: JSON.stringify({
-                    email:formData.email
-                }),
-            })
+            fetch(envVariables.serverURL +"/login/confirmEmail?" + new URLSearchParams({email:formData.email}))
             .then(response => response.json())
             .then(data => {
                 if(data.response === "good"){
