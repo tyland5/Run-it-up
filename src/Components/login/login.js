@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import {Keyboard,StyleSheet, TouchableOpacity, TextInput, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { useContext } from 'react';
 import { AuthContext } from './authContext';
+import { useNavigation } from '@react-navigation/native';
 
 const envVariables = require('../../../envVariables.json');
 
-export default function Login({state, descriptors, navigation}){
+export default function Login(){
 
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [credentialErr, setCredentialErr] = useState(false)
     const [loggedIn, setLoggedIn] = useContext(AuthContext)
+    const navigation = useNavigation()
 
     const checkCredentials = () => {
         fetch(envVariables.serverURL +"/login/checkCredentials", {
@@ -27,15 +29,16 @@ export default function Login({state, descriptors, navigation}){
         .then(response => response.json())
         .then(data => {
             console.log(data)
-            if(data.response !== "good"){
-                setCredentialErr(true)
-                setLoggedIn(true)
-            }
-            else{
+            if(data.response === "good"){
                 setCredentialErr(false)
                 setLoggedIn(true)
             }
+            else{
+                setCredentialErr(true)
+            }
         })
+
+        // could render a loading screen here
     }
 
     return (
@@ -43,8 +46,8 @@ export default function Login({state, descriptors, navigation}){
         <View style={styles.container}>
             
             <Text style={styles.title}>Run It Up</Text>
-            <TextInput style={styles.input} placeholder='Username' placeholderTextColor="gray" value={username} onChangeText={(user) => setUsername(user)}></TextInput>
-            <TextInput style={styles.input} placeholder='Password' placeholderTextColor="gray" value ={password} onChangeText={(pw) => setPassword(pw)}></TextInput>
+            <TextInput style={styles.input} placeholder='Username' placeholderTextColor="gray" value={username} onChangeText={(user) => setUsername(user.toLowerCase())}></TextInput>
+            <TextInput secureTextEntry = {true} style={styles.input} placeholder='Password' placeholderTextColor="gray" value ={password} onChangeText={(pw) => setPassword(pw)}></TextInput>
 
             <TouchableOpacity style={styles.button} onPress={checkCredentials}>
                 <Text style={styles.button_text}>Sign In</Text>
@@ -52,9 +55,11 @@ export default function Login({state, descriptors, navigation}){
             {credentialErr ? <Text style={[styles.error, {marginTop:20}]}>Incorrect username or password</Text> : <></>}
             <View style={{marginBottom:50}}></View>
             
-            <Text style={styles.text}>New User? <Text style={[styles.text, {textDecorationLine: 'underline'}]}>Register</Text></Text>
+            <Text style={styles.text}>New User?{' '}
+                <TouchableWithoutFeedback onPress={()=>navigation.navigate("Register")}><Text style={[styles.text, {textDecorationLine: 'underline'}]}>Register</Text></TouchableWithoutFeedback>
+            </Text>
             <View style={{marginBottom:20}}></View>
-            <Text style={[styles.text, {textDecorationLine: 'underline'}]}>Forgot Password</Text>
+            <TouchableWithoutFeedback onPress={()=>navigation.navigate("ForgotPassword")}><Text style={[styles.text, {textDecorationLine: 'underline'}]}>Forgot Password</Text></TouchableWithoutFeedback>
         </View>
     </TouchableWithoutFeedback>
     );

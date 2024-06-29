@@ -5,6 +5,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Login from './src/Components/login/login';
+import Register from './src/Components/login/register';
+import EmailConfirm from './src/Components/login/emailConfirm';
+import ForgotPassword from './src/Components/login/forgotPassword';
 import HomeFeed from './src/Components/home/homeFeed';
 import ExpandedPost from './src/Components/post/expandedPost';
 import TopNav from './src/Components/global/topNav';
@@ -14,8 +17,19 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 
 
-const HomeStack = createStackNavigator();
+const LoginStack = createStackNavigator();
+function LoginStackScreen() {
+  return(
+    <LoginStack.Navigator>
+      <LoginStack.Screen options = {{headerShown:false}} name="Login" component={Login}/>
+      <LoginStack.Screen name="Register" component={Register}/>
+      <LoginStack.Screen name="Confirmation" component={EmailConfirm}/>
+      <LoginStack.Screen name="ForgotPassword" component={ForgotPassword}/>
+    </LoginStack.Navigator>
+  )
+}
 
+const HomeStack = createStackNavigator();
 function HomeStackScreen() {
   return (
     <HomeStack.Navigator>
@@ -65,7 +79,7 @@ export default function App() {
         <RootStack.Navigator screenOptions={{headerShown: false}}>
           {loggedIn ? 
           <RootStack.Screen name= "appTabs" component={AppTabs}/> :
-          <RootStack.Screen name= "login" component={Login}/>
+          <RootStack.Screen name= "loginStack" component={LoginStackScreen}/>
           }
         </RootStack.Navigator>
       </NavigationContainer>
