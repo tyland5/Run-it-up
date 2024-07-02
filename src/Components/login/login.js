@@ -15,6 +15,7 @@ export default function Login(){
     const navigation = useNavigation()
 
     const checkCredentials = () => {
+        /*
         fetch(envVariables.serverURL +"/login/checkCredentials", {
             method: "POST",
             headers: {
@@ -37,7 +38,8 @@ export default function Login(){
                 setCredentialErr(true)
             }
         })
-
+        */
+        setLoggedIn(true)
         // could render a loading screen here
     }
 

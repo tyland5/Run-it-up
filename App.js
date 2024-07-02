@@ -9,7 +9,9 @@ import Register from './src/Components/login/register';
 import EmailConfirm from './src/Components/login/emailConfirm';
 import ForgotPassword from './src/Components/login/forgotPassword';
 import HomeFeed from './src/Components/home/homeFeed';
+import MakePost from './src/Components/home/makePost';
 import ExpandedPost from './src/Components/post/expandedPost';
+import MediaGallery from './src/Components/post/mediaGallery';
 import TopNav from './src/Components/global/topNav';
 import { useEffect, useState, useContext } from 'react';
 import { AuthContext } from './src/Components/login/authContext';
@@ -35,6 +37,8 @@ function HomeStackScreen() {
     <HomeStack.Navigator>
       <HomeStack.Screen options= {{header: () => <TopNav />}} name="Home" component={HomeFeed} />
       <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Post"/>}} name="ExpandedPost" component={ExpandedPost} />
+      <HomeStack.Screen options = {{headerShown:false}} name="MakePost" component={MakePost} />
+      <LoginStack.Screen options = {{headerShown:false}} name="MediaGallery" component={MediaGallery}/>
     </HomeStack.Navigator>
   );
 }
