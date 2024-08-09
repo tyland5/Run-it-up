@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import {StyleSheet, Text, View, Button, FlatList, TouchableWithoutFeedback} from 'react-native';
+import {StyleSheet, Text, View, Button, FlatList, TouchableWithoutFeedback, Image,Dimensions, RefreshControl} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../login/authContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -9,13 +9,28 @@ const envVariables = require('../../../envVariables.json');
 
 export default function HomeFeed(){
     const [loggedIn, setLoggedIn] = useContext(AuthContext);
-    const [posts, setPosts] = useState([{fname:"placeholder", lname:"placeholder2"}])
+    const [posts, setPosts] = useState(null)
     const navigation = useNavigation();
-    
+    const [refreshing, setRefreshing] = React.useState(false);
+
     useEffect(()=>{
-        setPosts([{post_id: 1, fname:"Josh", lname:"Hart"}, {post_id:2, fname: "Jalen", lname: "Brunson"}])
-        console.log(posts)
+        getPosts()
     }, [])
+
+    // used to refresh the home feed
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        setTimeout(() => {
+            getPosts();
+            setRefreshing(false);
+        }, 1500);
+    }, []);
+    
+    async function getPosts(){
+        const thePosts = await fetch(envVariables.serverURL + "/post/getPosts");
+        const data = await thePosts.json()
+        setPosts(data.res)
+    }
 
 
     return(
@@ -30,9 +45,14 @@ export default function HomeFeed(){
                 data={posts}
                 keyExtractor={post=> post.post_id}
                 ItemSeparatorComponent={() => <View style={{height:30}}></View>}
+                refreshControl={<RefreshControl
+                    colors={["#FFFFFF"]}
+                    tintColor={"#FFFFFF"}
+                    refreshing={refreshing}
+                    onRefresh={onRefresh} />}
                 renderItem={({item}) => (
                     <View style={{alignItems:'center'}}>
-                        <Post data={{fname: item.fname, lname:item.lname, uri: ""}}>{/* All images would be passed in through here*/}</Post>
+                        <Post data={{fname: item.fname, lname:item.lname, uri: item.uri, caption: item.caption}}>{/* All images would be passed in through here*/}</Post>
                     </View>   
                 )}
             />

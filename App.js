@@ -74,7 +74,6 @@ export default function App() {
 
   useEffect(() =>{
     // put in logic that checks if stored credentials are valid if there even is any
-    console.log("hit use effect in app.js")
   }, [])
 
   return (

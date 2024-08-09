@@ -10,9 +10,7 @@ export default function MediaGallery({route}){
     const swipeCloseEnabled = useRef(true);
     const [showClose, setShowClose] = useState(true)
 
-    const images = ["https://cdn.vox-cdn.com/thumbor/iFL_PO_PmxYFDTog-WO2jrtYZk8=/0x0:3000x2000/1200x800/filters:focal(1260x760:1740x1240)/cdn.vox-cdn.com/uploads/chorus_image/image/73428720/KnicksAddMoreNova_Getty_Ringer.0.jpg",
-        "https://nypost.com/wp-content/uploads/sites/2/2024/05/041224Knicks104CW-1.jpg"
-    ]
+    const images = route.params.media
 
     return (
         <>

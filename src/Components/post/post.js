@@ -1,25 +1,18 @@
 import { useNavigation } from '@react-navigation/native';
+import { useEffect, useState } from 'react';
 import {StyleSheet, Text, View, Button, Image, Dimensions, FlatList, TouchableWithoutFeedback } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function Post({data}){
 
     const navigation = useNavigation();
+    const [uris, setUris] = useState([]) 
 
-    function getUris(posts){
-        /*
-        const uriList = []
-        console.log(data)
-        console.log(posts)
-        for(let i = 0; i < posts.length; i++){
-            console.log('hello')
-            uriList.push(posts[i].uri)
+    useEffect(()=>{
+        if(data.uri !== null){
+            setUris(data.uri.split(','))
         }
-
-        console.log(uriList)
-        return uriList
-        */
-    }
+    }, [])
 
     return(
         <View style={styles.container}>
@@ -27,20 +20,23 @@ export default function Post({data}){
                 <Image style={styles.pfp} source={{uri: "https://b.fssta.com/uploads/application/nba/headshots/2374.vresize.350.350.medium.84.png"}}/>
                 <Text style={styles.poster}>{data.fname} {data.lname}</Text>
             </View>
-
+            { data.uri && 
             <FlatList
-                data={[{dummy: "hello"}, {dummy:"Hello2"}]}
+                data={uris}
                 horizontal={true}
                 renderItem={({item, index})=>(
-                    <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: data, index: index})}>
-                        <Image style={{ backgroundColor: 'white', width:Dimensions.get('screen').width * .9 * .9, height: 300, marginRight:10}} source={require('./knicks.png')}/>
+                    <>
+                    <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: uris, index: index})}>
+                        <Image style={{ backgroundColor: 'white', width:Dimensions.get('screen').width * .9 * .9, height: 300, marginRight:10}} source={{uri: item}}/>
                     </TouchableWithoutFeedback>
+                    </>
                 )}
                 showsHorizontalScrollIndicator={false}
             />
+}
 
             <View style={styles.caption}>
-                <Text style={styles.text}>I'm just that guy. Probably the goat</Text>
+                <Text style={styles.text}>{data.caption}</Text>
             </View>
 
             <View style={styles.activityBar}>
