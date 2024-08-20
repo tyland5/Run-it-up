@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import Gallery from 'react-native-awesome-gallery';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { StyleSheet, View, TouchableWithoutFeedback } from 'react-native';
+import { ms, hs, vs } from '../global/responsiveScaling';
 
 
 export default function MediaGallery({route}){
@@ -19,7 +20,7 @@ export default function MediaGallery({route}){
 
                     {showClose && 
                     <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
-                        <Ionicons style ={styles.closeContainer} name="close" size = {35} color ={"white"} />
+                        <Ionicons style ={styles.closeContainer} name="close" size = {ms(35)} color ={"white"} />
                     </TouchableWithoutFeedback> }
 
                     <Gallery
@@ -46,8 +47,8 @@ const styles = StyleSheet.create({
     },
     closeContainer:{
         position:'absolute',
-        top: 60,
-        left: 10,
+        top: vs(60),
+        left: hs(10),
         zIndex: 1
     }
 })

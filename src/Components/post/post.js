@@ -1,7 +1,9 @@
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
-import {StyleSheet, Text, View, Button, Image, Dimensions, FlatList, TouchableWithoutFeedback } from 'react-native';
+import {StyleSheet, View, Button, Image, Dimensions, FlatList, TouchableWithoutFeedback } from 'react-native';
+import { StyledText } from '../global/styledComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { hs, vs, ms } from '../global/responsiveScaling';
 
 export default function Post({data}){
 
@@ -18,7 +20,7 @@ export default function Post({data}){
         <View style={styles.container}>
             <View style={styles.top_section}>
                 <Image style={styles.pfp} source={{uri: "https://b.fssta.com/uploads/application/nba/headshots/2374.vresize.350.350.medium.84.png"}}/>
-                <Text style={styles.poster}>{data.fname} {data.lname}</Text>
+                <StyledText bold >{data.fname} {data.lname}</StyledText>
             </View>
             { data.uri && 
             <FlatList
@@ -27,7 +29,7 @@ export default function Post({data}){
                 renderItem={({item, index})=>(
                     <>
                     <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: uris, index: index})}>
-                        <Image style={{ backgroundColor: 'white', width:Dimensions.get('screen').width * .9 * .9, height: 300, marginRight:10}} source={{uri: item}}/>
+                        <Image style={{ backgroundColor: 'white', width:Dimensions.get('screen').width * .9 * .9, height: vs(300), marginRight:hs(10)}} source={{uri: item}}/>
                     </TouchableWithoutFeedback>
                     </>
                 )}
@@ -36,14 +38,14 @@ export default function Post({data}){
 }
 
             <View style={styles.caption}>
-                <Text style={styles.text}>{data.caption}</Text>
+                <StyledText>{data.caption}</StyledText>
             </View>
 
             <View style={styles.activityBar}>
-                <Ionicons name="heart-outline" size = {25} color ={"white"} />
-                <Ionicons name="chatbubble-outline" size = {25} color ={"white"} />
-                <Ionicons name="arrow-redo-outline" size = {25} color ={"white"} />
-                <Ionicons name="bookmark-outline" size = {25} color ={"white"} />
+                <Ionicons name="heart-outline" size = {ms(25)} color ={"white"} />
+                <Ionicons name="chatbubble-outline" size = {ms(25)} color ={"white"} />
+                <Ionicons name="arrow-redo-outline" size = {ms(25)} color ={"white"} />
+                <Ionicons name="bookmark-outline" size = {ms(25)} color ={"white"} />
             </View>
         </View>)
 }
@@ -51,38 +53,28 @@ export default function Post({data}){
 const styles = StyleSheet.create({
     container:{
         width: "90%",
-        
     }, 
     top_section:{
         flexDirection: "row",
         alignItems: 'center',
-        padding: 5,
-        
-    },
-    poster:{
-        fontSize:16,
-        color:"white",
-        fontWeight: 'bold'
+        paddingVertical: vs(5),
+        paddingHorizontal: vs(5)
     },
     pfp:{
-        width: 40,
-        height: 40,
-        borderRadius:20,
-        borderWidth: 1,
-        marginRight: 5
+        width: hs(40),
+        height: vs(40),
+        borderRadius:hs(20),
+        borderWidth: hs(1),
+        marginRight: hs(5)
     },
     media:{
-        marginBottom: 10,
+        marginBottom: vs(10),
         flexDirection: "row",
-        gap: 10,
+        gap: hs(10),
         overflow:'hidden'
     },
-    text:{
-        fontSize:16,
-        color:"white"
-    },
     caption:{
-        marginBottom: 10
+        marginBottom: vs(10)
     },
     activityBar:{
         flexDirection:'row',
