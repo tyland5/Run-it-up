@@ -3,6 +3,9 @@ import {Keyboard, StyleSheet, TouchableOpacity, TextInput, Text, TouchableWithou
 import { useContext } from 'react';
 import { AuthContext } from './authContext';
 import { useNavigation } from '@react-navigation/native';
+import { vs, hs, ms } from '../global/responsiveScaling';
+import { StyledButton, StyledText, StyledTextInput } from '../global/styledComponents';
+import styled from 'styled-components';
 
 const envVariables = require('../../../envVariables.json');
 
@@ -26,6 +29,12 @@ export default function ForgotPassword({route}){
         password: false,
         confirmPassword: false
     })
+
+    const StyledTextLabel = styled(StyledText)`
+        alignSelf: flex-start;
+        marginLeft: 10%;
+        marginBottom: ${vs(10)}px;
+    `;
  
     async function setEmail(){
         // first check if an account with this email exists
@@ -62,7 +71,7 @@ export default function ForgotPassword({route}){
             errs.password = true
             errPresent = true
         }
-        if(formData.confirmPassword !== formData.password){
+        if(formData.confirmPassword === "" || formData.confirmPassword !== formData.password){
             errs.confirmPassword = true
             errPresent = true
         }
@@ -86,35 +95,43 @@ export default function ForgotPassword({route}){
     return(
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.container}>
-            <View style={{height:30}}></View>
+            <View style={{height: vs(30)}}></View>
 
             {!emailSelected ? 
             <>
-            <TextInput style={styles.input} placeholder='Email' placeholderTextColor="gray" value ={formData.email} onChangeText={(val) => setFormData({...formData, email:val.toLowerCase()})}></TextInput>
-            {showErr.email ? <Text style={styles.error}>No account with this email</Text>:<></>} 
-            <TouchableOpacity style={styles.button} onPress={setEmail}>
-                <Text style={styles.button_text}>Submit</Text>
-            </TouchableOpacity>
+            <StyledTextInput placeholder='Email' placeholderTextColor="gray" value ={formData.email} onChangeText={(val) => setFormData({...formData, email:val.toLowerCase()})}></StyledTextInput>
+            {showErr.email ? 
+            <View style={{marginTop:vs(10), alignSelf:"flex-start", marginLeft:"10%"}}>
+            <StyledText error>No account with this email</StyledText>
+            </View>:<></>} 
+
+            <View style={{height: vs(30)}}></View>
+            <StyledButton onPress={setEmail}>
+                <StyledText bold>Submit</StyledText>
+            </StyledButton>
             </>
 
             :
 
             <>
-            <Text style={styles.inputLabel}>Please enter the code we emailed you</Text>
-            <TextInput style={styles.input} placeholder='Confirmation Code' placeholderTextColor="gray" value ={formData.confirmCode} onChangeText={(val) => setFormData({...formData, confirmCode:val})}></TextInput>
-            {showErr.confirmCode ? <Text style={styles.error}>Code entered does not match</Text> : <></>}
-            
-            <Text style={styles.inputLabel}>Password</Text>
-            <TextInput secureTextEntry = {true} style={styles.input} placeholder='Password' placeholderTextColor="gray" value ={formData.password} onChangeText={(val) => setFormData({...formData, password:val})}></TextInput>
-            {showErr.password ? <Text style={styles.error}>Password must be at least 12 characters</Text> : <></>}
-            
-            <Text style={styles.inputLabel}>Confirm Password</Text>
-            <TextInput secureTextEntry = {true} style={styles.input} placeholder='Confirm Password' placeholderTextColor="gray" value ={formData.confirmPassword} onChangeText={(val) => setFormData({...formData, confirmPassword:val})}></TextInput>
-            {showErr.confirmPassword ? <Text style={styles.error}>Passwords do not match</Text> : <></>}
+            <StyledTextLabel>Please enter the code we emailed you</StyledTextLabel>
+            <StyledTextInput placeholder='Confirmation Code' placeholderTextColor="gray" value ={formData.confirmCode} onChangeText={(val) => setFormData({...formData, confirmCode:val})}></StyledTextInput>
+            <View style= {styles.input_space}></View>
+            {showErr.confirmCode ? <StyledTextLabel error>Code entered does not match</StyledTextLabel> : <></>}
 
-            <TouchableOpacity style={styles.button} onPress={handleConfirm}>
-                <Text style={styles.button_text}>Submit</Text>
-            </TouchableOpacity>
+            <StyledTextLabel>Password</StyledTextLabel>
+            <StyledTextInput secureTextEntry = {true} placeholder='Password' placeholderTextColor="gray" value ={formData.password} onChangeText={(val) => setFormData({...formData, password:val})}></StyledTextInput>
+            <View style= {styles.input_space}></View>
+            {showErr.password ? <StyledTextLabel error>Password must be at least 12 characters</StyledTextLabel> : <></>}
+            
+            <StyledTextLabel>Confirm Password</StyledTextLabel>
+            <StyledTextInput secureTextEntry = {true} placeholder='Confirm Password' placeholderTextColor="gray" value ={formData.confirmPassword} onChangeText={(val) => setFormData({...formData, confirmPassword:val})}></StyledTextInput>
+            <View style= {styles.input_space}></View>
+            {showErr.confirmPassword ? <StyledTextLabel error>Passwords do not match</StyledTextLabel> : <></>}
+
+            <StyledButton onPress={handleConfirm}>
+                <StyledText bold>Submit</StyledText>
+            </StyledButton>
             </>
             }
 
@@ -130,43 +147,7 @@ const styles = StyleSheet.create({
         flex:1,
         alignItems:'center'
     },
-    input:{
-        width:"80%",
-        color:"white",
-        padding:10,
-        fontSize:16,
-        borderWidth:2,
-        borderColor:"white",
-        borderRadius: 8,
-        marginBottom: 30
-    },
-    inputLabel:{
-        color:"white",
-        fontSize: 16,
-        alignSelf: "flex-start",
-        marginLeft: "10%",
-        marginBottom: 10
-    },
-    error:{
-        position: 'relative',
-        color: 'red',
-        bottom: 20,
-        fontSize: 16,
-        alignSelf: "flex-start",
-        marginLeft: "10%",
-    },
-    button:{
-        width:150,
-        height: 70,
-        backgroundColor:"#F57600",
-        alignItems:"center",
-        justifyContent:"center",
-        borderRadius: 8,
-        marginBottom: 50
-    },
-    button_text:{
-        color:"white",
-        fontSize:18,
-        fontWeight:"bold"
+    input_space:{
+        height: vs(10)
     }
 })

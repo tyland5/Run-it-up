@@ -3,6 +3,8 @@ import {Keyboard,StyleSheet, TouchableOpacity, TextInput, Text, TouchableWithout
 import { useContext } from 'react';
 import { AuthContext } from './authContext';
 import { useNavigation } from '@react-navigation/native';
+import { hs, vs, ms } from '../global/responsiveScaling';
+import { StyledText, StyledTextInput, StyledButton } from '../global/styledComponents';
 
 const envVariables = require('../../../envVariables.json');
 
@@ -15,6 +17,8 @@ export default function Login(){
     const navigation = useNavigation()
 
     const checkCredentials = () => {
+        setCredentialErr(true)
+        return
         /*
         fetch(envVariables.serverURL +"/login/checkCredentials", {
             method: "POST",
@@ -47,21 +51,27 @@ export default function Login(){
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.container}>
             
-            <Text style={styles.title}>Run It Up</Text>
-            <TextInput style={styles.input} placeholder='Username' placeholderTextColor="gray" value={username} onChangeText={(user) => setUsername(user.toLowerCase())}></TextInput>
-            <TextInput secureTextEntry = {true} style={styles.input} placeholder='Password' placeholderTextColor="gray" value ={password} onChangeText={(pw) => setPassword(pw)}></TextInput>
+            <View style={styles.title}>
+                <StyledText xlarge >Run It Up</StyledText>
+            </View>
 
-            <TouchableOpacity style={styles.button} onPress={checkCredentials}>
-                <Text style={styles.button_text}>Sign In</Text>
-            </TouchableOpacity>
-            {credentialErr ? <Text style={[styles.error, {marginTop:20}]}>Incorrect username or password</Text> : <></>}
-            <View style={{marginBottom:50}}></View>
+            <View style={styles.inputs}>
+                <StyledTextInput placeholder='Username' placeholderTextColor="gray" value={username} onChangeText={(user) => setUsername(user.toLowerCase())}></StyledTextInput>
+                <StyledTextInput secureTextEntry = {true} placeholder='Password' placeholderTextColor="gray" value ={password} onChangeText={(pw) => setPassword(pw)}></StyledTextInput>
+            </View>
             
-            <Text style={styles.text}>New User?{' '}
-                <TouchableWithoutFeedback onPress={()=>navigation.navigate("Register")}><Text style={[styles.text, {textDecorationLine: 'underline'}]}>Register</Text></TouchableWithoutFeedback>
-            </Text>
-            <View style={{marginBottom:20}}></View>
-            <TouchableWithoutFeedback onPress={()=>navigation.navigate("ForgotPassword")}><Text style={[styles.text, {textDecorationLine: 'underline'}]}>Forgot Password</Text></TouchableWithoutFeedback>
+            <StyledButton onPress={checkCredentials}>
+                <StyledText bold>Sign In</StyledText>
+            </StyledButton>
+
+            {credentialErr ? <StyledText error>Incorrect username or password</StyledText> : <></>}
+            <View style={{marginBottom: vs(40)}}></View>
+            
+            <StyledText>New User?{' '}
+                <TouchableWithoutFeedback onPress={()=>navigation.navigate("Register")}><StyledText underline>Register</StyledText></TouchableWithoutFeedback>
+            </StyledText>
+            <View style={{marginBottom: vs(20)}}></View>
+            <TouchableWithoutFeedback onPress={()=>navigation.navigate("ForgotPassword")}><StyledText underline>Forgot Password</StyledText></TouchableWithoutFeedback>
         </View>
     </TouchableWithoutFeedback>
     );
@@ -75,40 +85,13 @@ const styles = StyleSheet.create({
     },
     title:{
         marginTop: "30%",
-        fontSize: 40,
-        color:"white",
-        marginBottom: 80
+        marginBottom: vs(80)
     },
-    text:{
-        fontSize:16,
-        color:"white"
+    inputs:{
+        width: "100%",
+        gap: vs(20),
+        marginBottom: vs(30),
+        alignItems: "center"
     },
-    error:{
-        fontSize:16,
-        color:"red"
-    },
-    input:{
-        width:"80%",
-        color:"white",
-        padding:10,
-        fontSize:16,
-        borderWidth:2,
-        borderColor:"white",
-        borderRadius: 8,
-        marginBottom: 30
-    },
-    button:{
-        width:150,
-        height: 70,
-        backgroundColor:"#F57600",
-        alignItems:"center",
-        justifyContent:"center",
-        borderRadius: 8,
-    },
-    button_text:{
-        color:"white",
-        fontSize:18,
-        fontWeight:"bold"
-    }
     
 })

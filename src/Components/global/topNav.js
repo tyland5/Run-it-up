@@ -2,25 +2,29 @@ import {StyleSheet, Text, View, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { StyledText } from './styledComponents';
+import { hs, vs, ms } from './responsiveScaling';
 
 export default function TopNav({hasBackArrow = false, title = ""}){
-    navigation = useNavigation()
+    const navigation = useNavigation()
     return(
         <>
         {hasBackArrow ?     
         <View style={styles.container}>
             <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
-                <Ionicons name="chevron-back" size = {30} color ={"#232020"} />
+                <Ionicons name="chevron-back" size = {ms(30)} color ={"#232020"} />
             </TouchableWithoutFeedback>
-            <Text style={styles.nav_title}>{title}</Text>
+            <View style={styles.nav_title}>
+                <StyledText large color="#232020">{title}</StyledText>
+            </View>
         </View>:
 
         <View style={styles.container}>
-        <View><Text style={styles.logo}>Run It</Text></View>
+        <View><StyledText large color= "#F57600">Run It</StyledText></View>
 
         <View style= {styles.iconContainer}>
-            <Ionicons name="notifications" size= {30} color ={"#232020"} />
-            <Ionicons name="person-circle" size= {30} color ={"#232020"} />
+            <Ionicons name="notifications" size= {ms(30)} color ={"#232020"} />
+            <Ionicons name="person-circle" size= {ms(30)} color ={"#232020"} />
         </View>
         </View>}
         </>)
@@ -28,27 +32,23 @@ export default function TopNav({hasBackArrow = false, title = ""}){
 
 const styles = StyleSheet.create({
     container:{
-        height: 90,
+        height: vs(90),
         backgroundColor: "#686D76",
         flexDirection:"row",
         justifyContent: "space-between",
         alignItems:"flex-end",
-        padding: 10
+        paddingHorizontal: hs(10),
+        paddingVertical: vs(10)
     },
-    logo:{
-        color: "#F57600", 
-        fontSize: 28
-    },
+
     iconContainer:{
         flexDirection: "row",
-        gap: 20
+        gap: hs(20)
     },
     nav_title:{
-        fontSize: 24,
-        color: "#232020",
         marginLeft: "auto",
         marginRight: "auto",
-        paddingRight: 10
+        paddingRight: hs(10)
     }
     
 })

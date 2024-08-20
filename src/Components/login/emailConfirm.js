@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import {Keyboard, StyleSheet, TouchableOpacity, TextInput, Text, TouchableWithoutFeedback, View, ScrollView} from 'react-native';
 import { useContext } from 'react';
 import { AuthContext } from './authContext';
+import { hs, vs, ms } from '../global/responsiveScaling';
+import { StyledText } from '../global/styledComponents';
 
 const envVariables = require('../../../envVariables.json');
 

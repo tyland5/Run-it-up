@@ -16,7 +16,7 @@ import TopNav from './src/Components/global/topNav';
 import { useEffect, useState, useContext } from 'react';
 import { AuthContext } from './src/Components/login/authContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import {hs, vs, ms} from "./src/Components/global/responsiveScaling";
 
 
 const LoginStack = createStackNavigator();
@@ -48,18 +48,17 @@ const Tab = createBottomTabNavigator();
 
 function AppTabs(){
   return(
-    <Tab.Navigator screenOptions={{ headerShown: false, tabBarStyle:{backgroundColor: "#686D76"}, 
-    tabBarActiveTintColor: "#F57600", tabBarInactiveTintColor: "#232020", tabBarLabelStyle: {fontSize: 12},}}>
+    <Tab.Navigator screenOptions={{ headerShown: false, tabBarStyle:{backgroundColor: "#686D76"}, tabBarHideOnKeyboard: true, 
+    tabBarActiveTintColor: "#F57600", tabBarInactiveTintColor: "#232020", tabBarLabelStyle: {fontSize: ms(14)}}}>
       
       <Tab.Screen name="HomeStack" component={HomeStackScreen} 
       options={{tabBarLabel:"home",
-        tabBarLabelStyle: {fontSize: 12},
-        tabBarIcon: ({color}) => (<Ionicons name="home" size= {30} color= {color}/>)
+        tabBarIcon: ({color}) => (<Ionicons name="home" size= {ms(30)} color= {color}/>)
       }}/>
 
       <Tab.Screen name="Explore" component={HomeStackScreen} 
       options={{tabBarLabel:"explore",
-        tabBarIcon: ({color}) => (<Ionicons name="search" size= {30} color= {color}/>)
+        tabBarIcon: ({color}) => (<Ionicons name="search" size= {ms(30)} color= {color}/>)
       }}/>
 
     </Tab.Navigator>
