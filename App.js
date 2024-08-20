@@ -17,6 +17,7 @@ import { useEffect, useState, useContext } from 'react';
 import { AuthContext } from './src/Components/login/authContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {hs, vs, ms} from "./src/Components/global/responsiveScaling";
+import Profile from './src/Components/profile/profile';
 
 
 const LoginStack = createStackNavigator();
@@ -39,6 +40,7 @@ function HomeStackScreen() {
       <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Post"/>}} name="ExpandedPost" component={ExpandedPost} />
       <HomeStack.Screen options = {{headerShown:false}} name="MakePost" component={MakePost} />
       <LoginStack.Screen options = {{headerShown:false}} name="MediaGallery" component={MediaGallery}/>
+      <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Profile"/>}} name="Profile" component={Profile} />
     </HomeStack.Navigator>
   );
 }

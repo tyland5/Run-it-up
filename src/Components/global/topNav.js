@@ -24,7 +24,9 @@ export default function TopNav({hasBackArrow = false, title = ""}){
 
         <View style= {styles.iconContainer}>
             <Ionicons name="notifications" size= {ms(30)} color ={"#232020"} />
-            <Ionicons name="person-circle" size= {ms(30)} color ={"#232020"} />
+            <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile")}>
+                <Ionicons name="person-circle" size= {ms(30)} color ={"#232020"} />
+            </TouchableWithoutFeedback>
         </View>
         </View>}
         </>)
@@ -38,7 +40,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems:"flex-end",
         paddingHorizontal: hs(10),
-        paddingVertical: vs(10)
+        paddingVertical: vs(5)
     },
 
     iconContainer:{

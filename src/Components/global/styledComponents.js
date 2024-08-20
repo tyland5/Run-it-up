@@ -6,6 +6,9 @@ import {hs, vs, ms} from "./responsiveScaling";
 //https://medium.com/building-crowdriff/styled-components-to-use-or-not-to-use-a6bb4a7ffc21
 export const StyledText = styled.Text`
     font-size: ${ms(16)}px;
+     ${props => props.small && `
+     font-size: ${ms(14)}px;
+    `}
     ${props => props.large && `
      font-size: ${ms(28)}px;
     `}
@@ -47,7 +50,7 @@ export const StyledButton = styled.Pressable`
     width: ${hs(150)}px;
     height: ${vs(70)}px;
     ${props => props.small && `
-        width: ${hs(50)}px;
+        width: ${hs(70)}px;
         height: ${vs(30)}px;
     `}
 
