@@ -48,16 +48,16 @@ const Tab = createBottomTabNavigator();
 
 function AppTabs(){
   return(
-    <Tab.Navigator screenOptions={{ headerShown: false, tabBarStyle:{backgroundColor: "#686D76"}, tabBarHideOnKeyboard: true, 
+    <Tab.Navigator screenOptions={{ headerShown: false, tabBarStyle:{backgroundColor: "#686D76", height: vs(79, .25)}, tabBarHideOnKeyboard: true, 
     tabBarActiveTintColor: "#F57600", tabBarInactiveTintColor: "#232020", tabBarLabelStyle: {fontSize: ms(14)}}}>
       
       <Tab.Screen name="HomeStack" component={HomeStackScreen} 
-      options={{tabBarLabel:"home",
+      options={{tabBarShowLabel: false,
         tabBarIcon: ({color}) => (<Ionicons name="home" size= {ms(30)} color= {color}/>)
       }}/>
 
       <Tab.Screen name="Explore" component={HomeStackScreen} 
-      options={{tabBarLabel:"explore",
+      options={{tabBarShowLabel: false,
         tabBarIcon: ({color}) => (<Ionicons name="search" size= {ms(30)} color= {color}/>)
       }}/>
 
