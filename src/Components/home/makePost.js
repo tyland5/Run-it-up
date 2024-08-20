@@ -7,6 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { hs, vs, ms } from '../global/responsiveScaling';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { StyledButton, StyledText } from '../global/styledComponents';
 
 const envVariables = require('../../../envVariables.json');
 
@@ -113,9 +114,9 @@ export default function MakePost({media}){
                 <TouchableWithoutFeedback onPress={()=>navigation.goBack()}>
                     <Ionicons name="close" size = {ms(30)} color ={"white"} />
                 </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={createPost}>
-                    <Text style={styles.postBtn}>Post</Text>
-                </TouchableWithoutFeedback>
+                <StyledButton small onPress={createPost}>
+                    <StyledText bold>Post</StyledText>
+                </StyledButton>
             </View>
             
 
@@ -130,7 +131,7 @@ export default function MakePost({media}){
                         <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: uploadedMedia, index: 0})}>
                             <Image resizeMode={"cover"} style={{ width:"100%", height: thumbnailHeight, marginRight: hs(10), marginTop: vs(20)}} source={{uri:uploadedMedia[0]}}/>
                         </TouchableWithoutFeedback>
-                        <Text style={styles.mediaQty}>{uploadedMedia.length} files chosen</Text>
+                        <StyledText bold>{uploadedMedia.length} file(s) chosen</StyledText>
                     </>}
                 </ScrollView>
             </View>
@@ -157,7 +158,6 @@ const styles = StyleSheet.create({
         fontSize: ms(18),
         color: 'white',
         marginLeft: hs(10),
-        
     },
     closeContainer:{
         position: 'absolute',
@@ -173,10 +173,6 @@ const styles = StyleSheet.create({
         paddingLeft:hs(10),
         paddingRight: hs(15),
     },
-    postBtn:{
-        fontSize:ms(18),
-        color:"white"
-    },
     attachmentsContainer:{
         zIndex: 1,
         height: vs(60),
@@ -186,12 +182,5 @@ const styles = StyleSheet.create({
         gap:hs(15),
         borderTopWidth:vs(2),
         borderTopColor: "white",
-        backgroundColor:'red'
     },
-    mediaQty:{
-        fontSize: 18,
-        color:"white",
-        alignSelf:"flex-end"
-    }
-
 })

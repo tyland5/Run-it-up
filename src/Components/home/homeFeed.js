@@ -51,6 +51,8 @@ export default function HomeFeed(){
                     tintColor={"#FFFFFF"}
                     refreshing={refreshing}
                     onRefresh={onRefresh} />}
+                ListFooterComponent={<View style={{height:vs(30)}}></View>}
+                
                 renderItem={({item}) => (
                     <View style={{alignItems:'center'}}>
                         <Post data={{fname: item.fname, lname:item.lname, uri: item.uri, caption: item.caption}}>{/* All images would be passed in through here*/}</Post>
@@ -67,7 +69,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#121212",
         flex:1,
         alignItems:'center',
-        width: "100%"
+        width: "100%",
     },
     postButton:{
         position:"absolute",

@@ -4,7 +4,7 @@ import { useContext } from 'react';
 import { AuthContext } from './authContext';
 import { useNavigation } from '@react-navigation/native';
 import { vs, hs, ms } from '../global/responsiveScaling';
-import { StyledButton, StyledText, StyledTextInput } from '../global/styledComponents';
+import { StyledButton, StyledText, StyledTextInput, StyledTextLabel } from '../global/styledComponents';
 import styled from 'styled-components';
 
 const envVariables = require('../../../envVariables.json');
@@ -29,12 +29,6 @@ export default function ForgotPassword({route}){
         password: false,
         confirmPassword: false
     })
-
-    const StyledTextLabel = styled(StyledText)`
-        alignSelf: flex-start;
-        marginLeft: 10%;
-        marginBottom: ${vs(10)}px;
-    `;
  
     async function setEmail(){
         // first check if an account with this email exists

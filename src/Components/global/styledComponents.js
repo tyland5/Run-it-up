@@ -37,9 +37,20 @@ export const StyledTextInput = styled.TextInput`
     borderRadius: ${ms(8)}px;
 `;
 
+export const StyledTextLabel = styled(StyledText)`
+        alignSelf: flex-start;
+        marginLeft: 10%;
+        marginBottom: ${vs(10)}px;
+    `;
+
 export const StyledButton = styled.Pressable`
     width: ${hs(150)}px;
     height: ${vs(70)}px;
+    ${props => props.small && `
+        width: ${hs(50)}px;
+        height: ${vs(30)}px;
+    `}
+
     backgroundColor: #F57600;
     alignItems: center;
     justifyContent: center;
