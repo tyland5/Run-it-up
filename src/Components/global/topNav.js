@@ -12,10 +12,10 @@ export default function TopNav({hasBackArrow = false, title = ""}){
         {hasBackArrow ?     
         <View style={styles.container}>
             <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
-                <Ionicons name="chevron-back" size = {ms(30)} color ={"#232020"} />
+                <Ionicons name="chevron-back" size = {ms(30)} color ={"white"} />
             </TouchableWithoutFeedback>
             <View style={styles.nav_title}>
-                <StyledText large color="#232020">{title}</StyledText>
+                <StyledText large color="white">{title}</StyledText>
             </View>
         </View>:
 
@@ -23,9 +23,9 @@ export default function TopNav({hasBackArrow = false, title = ""}){
         <View><StyledText large color= "#F57600">Run It</StyledText></View>
 
         <View style= {styles.iconContainer}>
-            <Ionicons name="notifications" size= {ms(30)} color ={"#232020"} />
+            <Ionicons name="notifications" size= {ms(30)} color ={"white"} />
             <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile")}>
-                <Ionicons name="person-circle" size= {ms(30)} color ={"#232020"} />
+                <Ionicons name="person-circle" size= {ms(30)} color ={"white"} />
             </TouchableWithoutFeedback>
         </View>
         </View>}
@@ -35,12 +35,14 @@ export default function TopNav({hasBackArrow = false, title = ""}){
 const styles = StyleSheet.create({
     container:{
         height: vs(90),
-        backgroundColor: "#686D76",
+        backgroundColor: "#121212",
         flexDirection:"row",
         justifyContent: "space-between",
         alignItems:"flex-end",
         paddingHorizontal: hs(10),
-        paddingVertical: vs(5)
+        paddingVertical: vs(5),
+        borderBottomWidth: ms(1),
+        borderColor: "gray"
     },
 
     iconContainer:{

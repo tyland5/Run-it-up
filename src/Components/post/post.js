@@ -1,25 +1,34 @@
 import { useNavigation } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, memo } from 'react';
 import {StyleSheet, View, Button, Image, Dimensions, FlatList, TouchableWithoutFeedback } from 'react-native';
 import { StyledText } from '../global/styledComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { hs, vs, ms } from '../global/responsiveScaling';
+import React from 'react';
 
-export default function Post({data}){
+// need memo here to tell react to not rerender post if its props doesn't change
+const Post = memo(function Post({data}){
 
     const navigation = useNavigation();
-    const [uris, setUris] = useState([]) 
-
-    useEffect(()=>{
+    const uris =  useMemo(() => {
         if(data.uri !== null){
-            setUris(data.uri.split(','))
+            return data.uri.split(',')
         }
+        return []
     }, [])
 
+    useEffect(()=>{
+        console.log("rerendering from post 22222222")
+    }, [])
+
+    useEffect(()=>{
+        console.log("rerendering from post")
+    })
+    
     return(
         <View style={styles.container}>
             <View style={styles.top_section}>
-                <Image style={styles.pfp} source={{uri: "https://b.fssta.com/uploads/application/nba/headshots/2374.vresize.350.350.medium.84.png"}}/>
+                 <Image style={styles.pfp} source={require("../profile/pfp-test.png")}/> 
                 <StyledText bold >{data.fname} {data.lname}</StyledText>
             </View>
             { data.uri && 
@@ -48,7 +57,7 @@ export default function Post({data}){
                 <Ionicons name="bookmark-outline" size = {ms(25)} color ={"white"} />
             </View>
         </View>)
-}
+})
 
 const styles = StyleSheet.create({
     container:{
@@ -81,3 +90,5 @@ const styles = StyleSheet.create({
         justifyContent: 'space-evenly'
     }
 })
+
+export default Post

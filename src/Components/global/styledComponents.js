@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from 'styled-components/native';
 import React from 'react';
 import { View, Text, TextInput, TouchableWithoutFeedback} from 'react-native';
 import {hs, vs, ms} from "./responsiveScaling"; 
@@ -50,12 +50,14 @@ export const StyledButton = styled.Pressable`
     width: ${hs(150)}px;
     height: ${vs(70)}px;
     ${props => props.small && `
-        width: ${hs(70)}px;
+        width: ${hs(80)}px;
         height: ${vs(30)}px;
     `}
 
-    backgroundColor: #F57600;
+    backgroundColor: ${props => props.bgColor ? props.bgColor : "#F57600"};
     alignItems: center;
     justifyContent: center;
     borderRadius: ${ms(8)}px;
+    borderWidth: ${props => props.borderWidth ? props.borderWidth : 0}px;
+    borderColor: ${props => props.borderColor ? props.borderColor : "white"};
 `;
