@@ -9,7 +9,7 @@ import { hs, vs, ms } from '../global/responsiveScaling';
 const envVariables = require('../../../envVariables.json');
 
 export default function HomeFeed(){
-    const [loggedIn, setLoggedIn] = useContext(AuthContext);
+    const {loggedIn, setLoggedIn} = useContext(AuthContext);
     const [posts, setPosts] = useState(null)
     const navigation = useNavigation();
     const [refreshing, setRefreshing] = React.useState(false);

@@ -100,7 +100,7 @@ export default function ForgotPassword({route}){
             </View>:<></>} 
 
             <View style={{height: vs(30)}}></View>
-            <StyledButton onPress={setEmail}>
+            <StyledButton large onPress={setEmail}>
                 <StyledText bold>Submit</StyledText>
             </StyledButton>
             </>
@@ -123,7 +123,7 @@ export default function ForgotPassword({route}){
             <View style= {styles.input_space}></View>
             {showErr.confirmPassword ? <StyledTextLabel error>Passwords do not match</StyledTextLabel> : <></>}
 
-            <StyledButton onPress={handleConfirm}>
+            <StyledButton large onPress={handleConfirm}>
                 <StyledText bold>Submit</StyledText>
             </StyledButton>
             </>

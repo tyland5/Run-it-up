@@ -141,7 +141,7 @@ export default function Register(){
                 {formErr.confirmPass ? <StyledTextLabel error>Passwords do not match</StyledTextLabel> : <></>}
                 <View style={{height: vs(15)}}></View>
 
-                <StyledButton onPress={handleRegister}>
+                <StyledButton large onPress={handleRegister}>
                     <StyledText bold>Register</StyledText>
                 </StyledButton>
                 <View style={{height: vs(30)}}></View>

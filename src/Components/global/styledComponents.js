@@ -47,11 +47,15 @@ export const StyledTextLabel = styled(StyledText)`
     `;
 
 export const StyledButton = styled.Pressable`
-    width: ${hs(150)}px;
-    height: ${vs(70)}px;
+    width: ${hs(80)}px;
+    height: ${vs(30)}px;
     ${props => props.small && `
-        width: ${hs(80)}px;
+        width: ${hs(60)}px;
         height: ${vs(30)}px;
+    `}
+    ${props => props.large && `
+        width: ${hs(150)}px;
+        height: ${vs(70)}px;
     `}
 
     backgroundColor: ${props => props.bgColor ? props.bgColor : "#F57600"};

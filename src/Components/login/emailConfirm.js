@@ -12,7 +12,7 @@ export default function EmailConfirm({route}){
 
     const [confCode, setConfCode] = useState('')
     const {generatedCode, accountDetails} = route.params
-    const [loggedIn, setLoggedIn] = useContext(AuthContext)
+    const {loggedIn, setLoggedIn} = useContext(AuthContext)
     const [showErr, setShowErr] = useState(false)
 
     useEffect(()=>{
@@ -51,7 +51,7 @@ export default function EmailConfirm({route}){
         {showErr ? <StyledTextLabel error>Code entered does not match</StyledTextLabel> : <></>}
         <View style={{height:vs(15)}}></View>
 
-        <StyledButton onPress={handleConfirm}>
+        <StyledButton large onPress={handleConfirm}>
             <StyledText bold>Submit</StyledText>
         </StyledButton>
     </View>

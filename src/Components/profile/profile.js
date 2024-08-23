@@ -49,8 +49,6 @@ function PostsTab({onScroll}){
 
 export default function Profile(){
     const pfpBorderRadius = Dimensions.get('window').width * .3 // decimal based on pfp width percentage
-    const width = Dimensions.get('window').width
-    const [prePosts, setPrePosts] = useState([])
     const [isFollowing, setIsFollowing] = useState(false)
     const [showHeader, setShowHeader] = useState(true);
     const navigation = useNavigation();
@@ -61,28 +59,19 @@ export default function Profile(){
       { key: 'Activity', title: 'Activity' },
     ], []);
     const index = React.useMemo( () => 0, []);
-    const posts = useMemo(()=>{ return prePosts}, [prePosts])
-
-    useEffect(()=>{
-        getPosts();
-    }, [])
 
     useEffect(()=>{
         console.log("rerendering")
     }
     )
 
-    async function getPosts(){
-        const thePosts = await fetch(envVariables.serverURL + "/post/getPosts");
-        const data = await thePosts.json()
-        setPrePosts(data.res)
-    }
-
-    const MemoTabsView = () => <PostsTab onScroll={(event) => {
-        if(showHeader && event.nativeEvent.contentOffset.y > 0){
+    const MemoTabsView = () => <PostsTab onScrollBeginDrag={(event) => {
+        console.log(event.nativeEvent.contentOffset.y)
+    }} onScroll={(event) => {
+        if(event.nativeEvent.contentOffset.y > 0){
             setShowHeader(false)
         }
-        else if(showHeader === false && event.nativeEvent.contentOffset.y <= 0){
+        else if(event.nativeEvent.contentOffset.y <= 0){
             setShowHeader(true)
         }
     }}/>
@@ -108,11 +97,11 @@ export default function Profile(){
                 <View style={{height:vs(10)}}></View>
                 
                 {isFollowing ? 
-                <StyledButton small bgColor="black" borderWidth={ms(2)} onPress={() => setIsFollowing(false)}>
+                <StyledButton bgColor="black" borderWidth={ms(2)} onPress={() => setIsFollowing(false)}>
                     <StyledText bold>Following</StyledText>
                 </StyledButton>
                 :
-                <StyledButton small onPress={() => setIsFollowing(true)}>
+                <StyledButton onPress={() => setIsFollowing(true)}>
                     <StyledText bold>Follow</StyledText>
                 </StyledButton>}
 
@@ -127,11 +116,13 @@ export default function Profile(){
         </View>
         
         <View style={styles.followMetrics}>
-            <TouchableWithoutFeedback onPress={() => navigation.navigate("FollowPage")}>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate("FollowPage", {activeRouteIndex: 0})}>
                 <StyledText small>727 Followers</StyledText>
             </TouchableWithoutFeedback>
 
-            <StyledText small>727 Following</StyledText>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate("FollowPage", {activeRouteIndex: 1})}>
+                <StyledText small>727 Following</StyledText>
+            </TouchableWithoutFeedback>
         </View>
         </>
         }
@@ -140,13 +131,14 @@ export default function Profile(){
 
         {/* TO DO: MAKE SURE TO ENABLE LAZY RENDERING FOR THESE TAB VIEWS. CAN DO WITH PROP FOR TABVIEW*/}
          {/* empty function in onIndexChange prevents rerender when switching tabs */}
+         {/* Each tab is responsible for memoization. Tabview covers this with renderScene SceneMap*/}
         <TabView
         renderTabBar={renderTabBar}
         navigationState={{ index, routes }}
         onIndexChange={() => {return}}
         renderScene={SceneMap({
             Posts: useCallback(() => MemoTabsView(), []),
-            Activity: FollowPage,
+            Activity: useCallback(() => MemoTabsView(), []),
           })}
         />
     </View>

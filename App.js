@@ -82,7 +82,7 @@ export default function App() {
   }, [])
 
   return (
-    <AuthContext.Provider value={[loggedIn, setLoggedIn]}>
+    <AuthContext.Provider value={{loggedIn, setLoggedIn}}>
       <NavigationContainer>
         <RootStack.Navigator screenOptions={{headerShown: false}}>
           {loggedIn ? 

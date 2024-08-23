@@ -13,12 +13,12 @@ export default function Login(){
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [credentialErr, setCredentialErr] = useState(false)
-    const [loggedIn, setLoggedIn] = useContext(AuthContext)
+    const {loggedIn, setLoggedIn} = useContext(AuthContext)
     const navigation = useNavigation()
 
     const checkCredentials = () => {
 
-        /*
+        
         fetch(envVariables.serverURL +"/login/checkCredentials", {
             method: "POST",
             headers: {
@@ -32,7 +32,6 @@ export default function Login(){
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data)
             if(data.response === "good"){
                 setCredentialErr(false)
                 setLoggedIn(true)
@@ -41,8 +40,6 @@ export default function Login(){
                 setCredentialErr(true)
             }
         })
-        */
-        setLoggedIn(true)
         // could render a loading screen here
     }
 
@@ -59,7 +56,7 @@ export default function Login(){
                 <StyledTextInput secureTextEntry = {true} placeholder='Password' placeholderTextColor="gray" value ={password} onChangeText={(pw) => setPassword(pw)}></StyledTextInput>
             </View>
             
-            <StyledButton onPress={checkCredentials}>
+            <StyledButton large onPress={checkCredentials}>
                 <StyledText bold>Sign In</StyledText>
             </StyledButton>
 

@@ -66,7 +66,8 @@ export default function MakePost({media}){
         const response = await fetch(envVariables.serverURL +"/post/makePost", {
             method: "POST",
             headers: {
-              "Content-Type": "multipart/form-data"
+              "Content-Type": "multipart/form-data",
+              "X-CSRF-Token": "testing"
             },
             body: data
         })
