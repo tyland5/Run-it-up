@@ -47,7 +47,7 @@ export const StyledTextLabel = styled(StyledText)`
     `;
 
 export const StyledButton = styled.Pressable`
-    width: ${hs(80)}px;
+    width: ${hs(90)}px;
     height: ${vs(30)}px;
     ${props => props.small && `
         width: ${hs(60)}px;

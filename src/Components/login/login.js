@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {Keyboard,StyleSheet, TouchableOpacity, TextInput, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { useContext } from 'react';
 import { AuthContext } from './authContext';
 import { useNavigation } from '@react-navigation/native';
 import { hs, vs, ms } from '../global/responsiveScaling';
 import { StyledText, StyledTextInput, StyledButton } from '../global/styledComponents';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const envVariables = require('../../../envVariables.json');
 
@@ -16,10 +17,21 @@ export default function Login(){
     const {loggedIn, setLoggedIn} = useContext(AuthContext)
     const navigation = useNavigation()
 
-    const checkCredentials = () => {
+    useEffect(()=>{
+        // check if user has existing session. if not then have them log in
+        // need to make another page and put this in there. have to render that page first instead of login since logged in user sees login page
+        fetch(envVariables.serverURL + "/login/checkIfLoggedIn")
+        .then(response=>{
+            if(response.status !== 401){
+                setLoggedIn(true)
+            }
+        })
+    },[])
+
+    const checkCredentials = async() => {
 
         
-        fetch(envVariables.serverURL +"/login/checkCredentials", {
+        const resp = await fetch(envVariables.serverURL +"/login/checkCredentials", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -30,16 +42,17 @@ export default function Login(){
                 password: password
             }),
         })
-        .then(response => response.json())
-        .then(data => {
-            if(data.response === "good"){
-                setCredentialErr(false)
-                setLoggedIn(true)
-            }
-            else{
-                setCredentialErr(true)
-            }
-        })
+        const respJson = await resp.json()
+        if(respJson.response === "good"){
+            await AsyncStorage.setItem('csrf-token', respJson.csrfToken);
+            await AsyncStorage.setItem('uid', respJson.uid.toString());
+            setCredentialErr(false)
+            setLoggedIn(true)
+        }
+        else{
+            setCredentialErr(true)
+        }
+        
         // could render a loading screen here
     }
 

@@ -5,14 +5,14 @@ import { hs, vs, ms } from "../global/responsiveScaling";
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import Post from "../post/post";
 import { useNavigation } from "@react-navigation/native";
-import FollowPage from "./followPage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const envVariables = require('../../../envVariables.json');
 
 // this prevents rerender of flatlist when props dont change. need custom comparison since objects arent compared properly by default
 //const MemoTabView = memo(TabView, (oldProps, newProps) => { console.log(oldProps); console.log(newProps); return newProps.navigationState.renderScene == oldProps.navigationState.renderScene})
 
-const MemoFlatList = memo(FlatList, (oldProps, newProps) => {console.log("comparison memo truth val " + JSON.stringify(oldProps) +"\n\n" + JSON.stringify(newProps)); return JSON.stringify(newProps) === JSON.stringify(oldProps)})
+const MemoFlatList = memo(FlatList, (oldProps, newProps) => {return JSON.stringify(newProps) === JSON.stringify(oldProps)})
 function PostsTab({onScroll}){
     const [prePosts, setPrePosts] = useState([])
     
@@ -39,7 +39,7 @@ function PostsTab({onScroll}){
                 onScroll={onScroll}
                 renderItem={({item}) => (
                     <View style={{alignItems:'center'}}>
-                        <Post data={{fname: item.fname, lname:item.lname, uri: item.uri, caption: item.caption}} />
+                        <Post data={{name: item.name, uri: item.uri, caption: item.caption}} />
                     </View>   
                 )}
             />
@@ -47,10 +47,12 @@ function PostsTab({onScroll}){
     )
 }
 
-export default function Profile(){
+export default function Profile({route}){
     const pfpBorderRadius = Dimensions.get('window').width * .3 // decimal based on pfp width percentage
     const [isFollowing, setIsFollowing] = useState(false)
     const [showHeader, setShowHeader] = useState(true);
+    const [profileInfo, setProfileInfo] = useState({});
+    const [isSelf, setIsSelf] = useState(false)
     const navigation = useNavigation();
 
     // trying to prevent react native tab from rerendering on when changin state (following button)
@@ -60,14 +62,28 @@ export default function Profile(){
     ], []);
     const index = React.useMemo( () => 0, []);
 
+    useEffect(() =>{
+        getProfileInfo();
+    }, [])
+
     useEffect(()=>{
         console.log("rerendering")
     }
     )
 
-    const MemoTabsView = () => <PostsTab onScrollBeginDrag={(event) => {
-        console.log(event.nativeEvent.contentOffset.y)
-    }} onScroll={(event) => {
+    const getProfileInfo = async () =>{
+        const res = await fetch(envVariables.serverURL + "/user/getUserInfo?" + new URLSearchParams({uid: route.params.uid}));
+        const jsonRes = await res.json();
+        const uid = await AsyncStorage.getItem('uid')
+        
+        if(parseInt(uid) === route.params.uid){
+            setIsSelf(true)
+        }
+
+        setProfileInfo(jsonRes.res[0])
+    }
+
+    const MemoTabsView = () => <PostsTab onScroll={(event) => {
         if(event.nativeEvent.contentOffset.y > 0){
             setShowHeader(false)
         }
@@ -90,20 +106,30 @@ export default function Profile(){
         {showHeader && 
         <>
         <View style={styles.topSection}>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: [""], index: 0})}>
             <Image style={[styles.pfp, {borderRadius:pfpBorderRadius, height:pfpBorderRadius}]} source={require("./pfp-test.png")}/>
+            </TouchableWithoutFeedback>
             <View style={styles.identification}>
-                <StyledText bold>Jontavius Gilgeous-Alexander</StyledText>
-                <StyledText>@stanhehe</StyledText>
+                <StyledText bold>{profileInfo.name}</StyledText>
+                <StyledText>@{profileInfo.username}</StyledText>
                 <View style={{height:vs(10)}}></View>
-                
-                {isFollowing ? 
-                <StyledButton bgColor="black" borderWidth={ms(2)} onPress={() => setIsFollowing(false)}>
-                    <StyledText bold>Following</StyledText>
-                </StyledButton>
-                :
-                <StyledButton onPress={() => setIsFollowing(true)}>
-                    <StyledText bold>Follow</StyledText>
-                </StyledButton>}
+
+                {isSelf ? 
+                    <StyledButton bgColor="gray" borderWidth={ms(2)} onPress={() => {}}>
+                        <StyledText bold>Edit Profile</StyledText>
+                    </StyledButton> 
+                    :
+                    <>
+                    {isFollowing ? 
+                    <StyledButton bgColor="black" borderWidth={ms(2)} onPress={() => setIsFollowing(false)}>
+                        <StyledText bold>Following</StyledText>
+                    </StyledButton>
+                    :
+                    <StyledButton onPress={() => setIsFollowing(true)}>
+                        <StyledText bold>Follow</StyledText>
+                    </StyledButton>}
+                    </>
+                }   
 
             </View>
         </View>
@@ -112,7 +138,7 @@ export default function Profile(){
             <StyledText
             onTextLayout = {(event) =>{
             }}
-            numberOfLines={3}>Hello this is gonna be a very long bio Hello this is gonna be a very long bioHello this is gonna be a very long bioHello this is gonna be a very long bio Hello this is gonna be a very long bio </StyledText>
+            numberOfLines={3}>{profileInfo.bio}</StyledText>
         </View>
         
         <View style={styles.followMetrics}>

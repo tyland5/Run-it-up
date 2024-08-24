@@ -4,9 +4,22 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { StyledText } from './styledComponents';
 import { hs, vs, ms } from './responsiveScaling';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
 
 export default function TopNav({hasBackArrow = false, title = ""}){
     const navigation = useNavigation()
+    const [uid , setUid] = useState(0) 
+
+    useEffect(()=>{
+        getId();
+    },[])
+
+    async function getId(){
+        const temp = await AsyncStorage.getItem("uid");
+        setUid(parseInt(temp))
+    }
+
     return(
         <>
         {hasBackArrow ?     
@@ -24,7 +37,7 @@ export default function TopNav({hasBackArrow = false, title = ""}){
 
         <View style= {styles.iconContainer}>
             <Ionicons name="notifications" size= {ms(30)} color ={"white"} />
-            <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile")}>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:uid})}>
                 <Ionicons name="person-circle" size= {ms(30)} color ={"white"} />
             </TouchableWithoutFeedback>
         </View>

@@ -41,7 +41,7 @@ export default function FollowPage(){
                 ListFooterComponent={() => <View style={{height:vs(30)}}></View>}
                 renderItem={({item}) => (
                     <View style={{alignItems:'center'}}>
-                        <Post data={{fname: item.fname, lname:item.lname, uri: item.uri, caption: item.caption}} />
+                        <Post data={{name: item.name, uri: item.uri, caption: item.caption}} />
                     </View>   
                 )}
             />

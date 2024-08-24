@@ -28,8 +28,12 @@ const Post = memo(function Post({data}){
     return(
         <View style={styles.container}>
             <View style={styles.top_section}>
-                 <Image style={styles.pfp} source={require("../profile/pfp-test.png")}/> 
-                <StyledText bold >{data.fname} {data.lname}</StyledText>
+                <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:data.uid})}>
+                    <Image style={styles.pfp} source={require("../profile/pfp-test.png")}/> 
+                </TouchableWithoutFeedback>
+                <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:data.uid})}>
+                    <StyledText bold >{data.name}</StyledText>
+                </TouchableWithoutFeedback>
             </View>
             { data.uri && 
             <FlatList

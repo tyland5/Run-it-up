@@ -13,7 +13,7 @@ export default function FollowPage(){
     })
 
     // not including this causes Post to get rerendered since data would get re-initialized
-    const data = useMemo(() => {return {fname: "test", lname:"user", uri: "", caption: "testing this shitty memo"}}, [])
+    const data = useMemo(() => {return {name: "test", uri: "", caption: "testing this shitty memo"}}, [])
     return(
         <View style = {styles.container}>
             <TouchableWithoutFeedback onPress={() => setDum(dum + 1)}><Ionicons style ={styles.postButton} name={"add-circle"} color={"orange"} size={ms(60)}></Ionicons></TouchableWithoutFeedback>
