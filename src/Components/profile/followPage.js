@@ -1,14 +1,26 @@
-import React, { useEffect, useCallback, useMemo } from "react";
+import React, { useEffect, useCallback, useMemo, useState } from "react";
 import { FlatList, StyleSheet, View} from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import ProfileList from "./profileList";
 
+const envVariables = require('../../../envVariables.json');
+
 export default function FollowPage({route}){
+    const [followData, setFollowData] = useState([])
 
     useEffect(()=>{
         // here i would have to fetch the followers and following
+        getFollowInfo()
     }, [])
     
+    const getFollowInfo = async () =>{
+        const res = await fetch(envVariables.serverURL + "/user/getFollowersFollowing?" + new URLSearchParams({uid: route.params.uid}));
+        const jsonRes = await res.json();
+        
+        setFollowData(jsonRes.res)
+    }
+
+
     const renderTabBar = props =>(
         <TabBar
         {...props}
@@ -31,8 +43,8 @@ export default function FollowPage({route}){
                 navigationState={{ index, routes }}
                 onIndexChange={() => {return}}
                 renderScene={SceneMap({
-                    Followers: useCallback(() => {return <ProfileList data = {['','','','','','','','','','']}/>}, []),
-                    Following: useCallback(() => {return <ProfileList data = {['','','']}/>}, []),
+                    Followers: useCallback(() => {return <ProfileList data = {followData[0]}/>}, [followData]),
+                    Following: useCallback(() => {return <ProfileList data = {followData[1]}/>}, [followData]),
                 })}
             />
 

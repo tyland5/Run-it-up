@@ -14,19 +14,34 @@ export default function Login(){
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [credentialErr, setCredentialErr] = useState(false)
-    const {loggedIn, setLoggedIn} = useContext(AuthContext)
+    const {loggedIn, setLoggedIn, setSelfUid, setCsrfToken} = useContext(AuthContext)
     const navigation = useNavigation()
 
     useEffect(()=>{
         // check if user has existing session. if not then have them log in
         // need to make another page and put this in there. have to render that page first instead of login since logged in user sees login page
-        fetch(envVariables.serverURL + "/login/checkIfLoggedIn")
-        .then(response=>{
-            if(response.status !== 401){
+        checkIfLoggedIn()
+    },[])
+
+    const checkIfLoggedIn = async() =>{
+        const resp = await fetch(envVariables.serverURL + "/login/checkIfLoggedIn")
+        const response = await resp.json()
+        
+        if(response.status !== 401){
+            try{    
+                const selfUid = await AsyncStorage.getItem('uid')
+                const csrfToken = await AsyncStorage.getItem('csrf-token')
+
+                setSelfUid(selfUid)
+                setCsrfToken(csrfToken)
                 setLoggedIn(true)
             }
-        })
-    },[])
+            catch {
+                // no valid uid or csrf token to be recovered from storage
+            }
+        }
+    
+    }
 
     const checkCredentials = async() => {
 
@@ -46,7 +61,10 @@ export default function Login(){
         if(respJson.response === "good"){
             await AsyncStorage.setItem('csrf-token', respJson.csrfToken);
             await AsyncStorage.setItem('uid', respJson.uid.toString());
+            
             setCredentialErr(false)
+            setSelfUid(respJson.uid)
+            setCsrfToken(respJson.csrfToken)
             setLoggedIn(true)
         }
         else{

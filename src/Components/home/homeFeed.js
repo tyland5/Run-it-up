@@ -55,7 +55,7 @@ export default function HomeFeed(){
                 
                 renderItem={({item}) => (
                     <View style={{alignItems:'center'}}>
-                        <Post data={{uid: item.uid, name: item.name, uri: item.uri, caption: item.caption}}>{/* All images would be passed in through here*/}</Post>
+                        <Post data={{uid: item.uid, name: item.name, uri: item.uri, caption: item.caption, pfp:item.pfp}}>{/* All images would be passed in through here*/}</Post>
                     </View>   
                 )}
             />

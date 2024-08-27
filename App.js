@@ -14,7 +14,9 @@ import ExpandedPost from './src/Components/post/expandedPost';
 import MediaGallery from './src/Components/post/mediaGallery';
 import TopNav from './src/Components/global/topNav';
 import Profile from './src/Components/profile/profile';
+import EditProfile from './src/Components/profile/editProfile';
 import FollowPage from './src/Components/profile/followPage';
+import Settings from './src/Components/profile/settings';
 import { useEffect, useState, useContext } from 'react';
 import { AuthContext } from './src/Components/login/authContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -42,8 +44,10 @@ function HomeStackScreen() {
       <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Post"/>}} name="ExpandedPost" component={ExpandedPost} />
       <HomeStack.Screen options = {{headerShown:false}} name="MakePost" component={MakePost} />
       <LoginStack.Screen options = {{headerShown:false}} name="MediaGallery" component={MediaGallery}/>
-      <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Profile"/>}} name="Profile" component={Profile} />
+      <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Profile" hasSettings={true}/>}} name="Profile" component={Profile} />
       <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Profile"/>}} name="FollowPage" component={FollowPage} />
+      <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Edit Profile" />}} name="EditProfile" component={EditProfile} />
+      <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Settings"/>}} name="Settings" component={Settings} />
     </HomeStack.Navigator>
   );
 }
@@ -75,6 +79,8 @@ const RootStack = createStackNavigator();
 export default function App() {
 
   const [loggedIn, setLoggedIn] = useState(false)
+  const [selfUid, setSelfUid] = useState(0)
+  const [csrfToken, setCsrfToken] = useState('')
 
   useEffect(() =>{
     // put in logic that checks if stored credentials are valid if there even is any
@@ -82,7 +88,7 @@ export default function App() {
   }, [])
 
   return (
-    <AuthContext.Provider value={{loggedIn, setLoggedIn}}>
+    <AuthContext.Provider value={{loggedIn, setLoggedIn, selfUid, setSelfUid, csrfToken, setCsrfToken}}>
       <NavigationContainer>
         <RootStack.Navigator screenOptions={{headerShown: false}}>
           {loggedIn ? 

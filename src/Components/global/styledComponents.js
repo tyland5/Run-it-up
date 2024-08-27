@@ -21,7 +21,7 @@ export const StyledText = styled.Text`
         color: red;
     `}
 
-    margin: ${props=> props.margin ? props.margin : 0};
+    margin: ${props=> props.margin ? props.margin : 0}px;
     fontWeight: ${props => props.bold ? "bold" : "normal"};
     ${props => props.underline && `textDecorationLine: underline;`}
 `;
@@ -38,6 +38,9 @@ export const StyledTextInput = styled.TextInput`
     borderWidth: ${ms(2)}px;
     borderColor: white;
     borderRadius: ${ms(8)}px;
+    ${props => props.height && `
+        height: ${props.height}px;
+    `}
 `;
 
 export const StyledTextLabel = styled(StyledText)`

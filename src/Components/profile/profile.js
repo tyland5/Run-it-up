@@ -12,16 +12,20 @@ const envVariables = require('../../../envVariables.json');
 // this prevents rerender of flatlist when props dont change. need custom comparison since objects arent compared properly by default
 //const MemoTabView = memo(TabView, (oldProps, newProps) => { console.log(oldProps); console.log(newProps); return newProps.navigationState.renderScene == oldProps.navigationState.renderScene})
 
-const MemoFlatList = memo(FlatList, (oldProps, newProps) => {return JSON.stringify(newProps) === JSON.stringify(oldProps)})
-function PostsTab({onScroll}){
+const MemoFlatList = memo(FlatList, (oldProps, newProps) => { return JSON.stringify(newProps) === JSON.stringify(oldProps)})
+function PostsTab({onScroll, uid}){
     const [prePosts, setPrePosts] = useState([])
     
     useEffect(()=>{
         getPosts();
     }, [])
 
+    useEffect(() =>{
+        console.log("rerendering from posts tab")
+    })
+
     async function getPosts(){
-        const thePosts = await fetch(envVariables.serverURL + "/post/getPosts");
+        const thePosts = await fetch(envVariables.serverURL + "/post/getPosts?" + new URLSearchParams({uid: uid }));
         const data = await thePosts.json()
         setPrePosts(data.res)
     }
@@ -29,19 +33,19 @@ function PostsTab({onScroll}){
     
     const posts = useMemo(()=> {return prePosts}, [prePosts])
     return(
-        <View style = {styles.container}>
+        <View style = {[styles.container, {marginTop: vs(10)}]}>
             <MemoFlatList 
                 style={{width:"100%"}}
                 data={posts}
-                keyExtractor={post=> post.post_id}
-                ItemSeparatorComponent={() => <View style={{height: vs(30)}}></View>}
-                ListFooterComponent={() => <View style={{height:vs(30)}}></View>}
+                keyExtractor={useCallback(post=> post.post_id, [])}
+                ItemSeparatorComponent={useCallback(() => <View style={{height: vs(30)}}></View>,[])}
+                ListFooterComponent={useCallback(() => <View style={{height:vs(30)}}></View>, [])}
                 onScroll={onScroll}
-                renderItem={({item}) => (
+                renderItem={useCallback(({item}) => (
                     <View style={{alignItems:'center'}}>
-                        <Post data={{name: item.name, uri: item.uri, caption: item.caption}} />
+                        <Post data={{name: item.name, uri: item.uri, caption: item.caption, pfp:item.pfp}} />
                     </View>   
-                )}
+                ), [posts])}
             />
         </View>
     )
@@ -63,7 +67,13 @@ export default function Profile({route}){
     const index = React.useMemo( () => 0, []);
 
     useEffect(() =>{
-        getProfileInfo();
+        const unsubscribe = navigation.addListener('focus', () => {
+            // do something
+            getProfileInfo();
+            console.log("rendering for first time")
+          });
+      
+        return unsubscribe;
     }, [])
 
     useEffect(()=>{
@@ -79,11 +89,14 @@ export default function Profile({route}){
         if(parseInt(uid) === route.params.uid){
             setIsSelf(true)
         }
+        else{
+            setIsFollowing(jsonRes.res[0].isFollowing)
+        }
 
         setProfileInfo(jsonRes.res[0])
     }
 
-    const MemoTabsView = () => <PostsTab onScroll={(event) => {
+    const MemoTabsView = () => <PostsTab uid = {route.params.uid} onScroll={(event) => {
         if(event.nativeEvent.contentOffset.y > 0){
             setShowHeader(false)
         }
@@ -100,14 +113,49 @@ export default function Profile({route}){
         />
     )
 
+    const followUser = async() =>{
+        const csrfToken = await AsyncStorage.getItem('csrf-token');
+
+        const res = await fetch(envVariables.serverURL +"/user/followUser", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+               Accept : "application/json",
+              "X-CSRF-Token": csrfToken
+            },
+            body: JSON.stringify({followingId: route.params.uid})
+        })
+
+        if(res.status === 200){
+            setIsFollowing(true)
+        }
+    }
+
+    const unfollowUser = async() =>{
+        const csrfToken = await AsyncStorage.getItem('csrf-token');
+        const res = await fetch(envVariables.serverURL +"/user/unfollowUser", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+               Accept : "application/json",
+              "X-CSRF-Token": csrfToken
+            },
+            body: JSON.stringify({followingId: route.params.uid})
+        })
+
+        if(res.status === 200){
+            setIsFollowing(false)
+        }
+    }
+
     return(
     <View style={styles.container}>
 
         {showHeader && 
         <>
         <View style={styles.topSection}>
-            <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: [""], index: 0})}>
-            <Image style={[styles.pfp, {borderRadius:pfpBorderRadius, height:pfpBorderRadius}]} source={require("./pfp-test.png")}/>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: [profileInfo.pfp], index: 0})}>
+            <Image style={[styles.pfp, {borderRadius:pfpBorderRadius, height:pfpBorderRadius}]} source={{uri: profileInfo.pfp}}/>
             </TouchableWithoutFeedback>
             <View style={styles.identification}>
                 <StyledText bold>{profileInfo.name}</StyledText>
@@ -115,17 +163,18 @@ export default function Profile({route}){
                 <View style={{height:vs(10)}}></View>
 
                 {isSelf ? 
-                    <StyledButton bgColor="gray" borderWidth={ms(2)} onPress={() => {}}>
+                    <StyledButton bgColor="#3b3b3b" borderWidth={ms(2)} onPress={() => {navigation.navigate("EditProfile", 
+                        {pfp: profileInfo.pfp, name: profileInfo.name, username: profileInfo.username, bio: profileInfo.bio, uid: profileInfo.uid})}}>
                         <StyledText bold>Edit Profile</StyledText>
                     </StyledButton> 
                     :
                     <>
                     {isFollowing ? 
-                    <StyledButton bgColor="black" borderWidth={ms(2)} onPress={() => setIsFollowing(false)}>
+                    <StyledButton bgColor="black" borderWidth={ms(2)} onPress={() => unfollowUser()}>
                         <StyledText bold>Following</StyledText>
                     </StyledButton>
                     :
-                    <StyledButton onPress={() => setIsFollowing(true)}>
+                    <StyledButton onPress={() => followUser()}>
                         <StyledText bold>Follow</StyledText>
                     </StyledButton>}
                     </>
@@ -142,12 +191,12 @@ export default function Profile({route}){
         </View>
         
         <View style={styles.followMetrics}>
-            <TouchableWithoutFeedback onPress={() => navigation.navigate("FollowPage", {activeRouteIndex: 0})}>
-                <StyledText small>727 Followers</StyledText>
+            <TouchableWithoutFeedback onPress={() => navigation.push("FollowPage", {activeRouteIndex: 0, uid:route.params.uid})}>
+                <StyledText small>{profileInfo.followers} Followers</StyledText>
             </TouchableWithoutFeedback>
 
-            <TouchableWithoutFeedback onPress={() => navigation.navigate("FollowPage", {activeRouteIndex: 1})}>
-                <StyledText small>727 Following</StyledText>
+            <TouchableWithoutFeedback onPress={() => navigation.push("FollowPage", {activeRouteIndex: 1, uid:route.params.uid})}>
+                <StyledText small>{profileInfo.following} Following</StyledText>
             </TouchableWithoutFeedback>
         </View>
         </>
@@ -161,10 +210,10 @@ export default function Profile({route}){
         <TabView
         renderTabBar={renderTabBar}
         navigationState={{ index, routes }}
-        onIndexChange={() => {return}}
+        onIndexChange={useCallback(() => {return}, [])}
         renderScene={SceneMap({
             Posts: useCallback(() => MemoTabsView(), []),
-            Activity: useCallback(() => MemoTabsView(), []),
+            Activity: useCallback(() => {return <></>}, []),
           })}
         />
     </View>
@@ -181,7 +230,7 @@ const styles = StyleSheet.create({
         paddingTop: vs(20),
         flexDirection:"row",
         alignItems:"center",
-        gap: hs(5),
+        gap: hs(10),
         marginBottom: vs(20),
         paddingHorizontal: hs(5)
     },

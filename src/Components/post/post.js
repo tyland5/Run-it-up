@@ -29,7 +29,7 @@ const Post = memo(function Post({data}){
         <View style={styles.container}>
             <View style={styles.top_section}>
                 <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:data.uid})}>
-                    <Image style={styles.pfp} source={require("../profile/pfp-test.png")}/> 
+                    <Image style={styles.pfp} source={{uri:data.pfp}}/> 
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:data.uid})}>
                     <StyledText bold >{data.name}</StyledText>
@@ -42,7 +42,7 @@ const Post = memo(function Post({data}){
                 renderItem={({item, index})=>(
                     <>
                     <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: uris, index: index})}>
-                        <Image style={{ backgroundColor: 'white', width:Dimensions.get('screen').width * .9 * .9, height: vs(300), marginRight:hs(10)}} source={{uri: item}}/>
+                        <Image style={uris.length === 1 ? [styles.imageStyle, {width:Dimensions.get('screen').width * .9}] : [styles.imageStyle, {width:Dimensions.get('screen').width * .9 *.9}]} source={{uri: item}}/>
                     </TouchableWithoutFeedback>
                     </>
                 )}
@@ -70,8 +70,8 @@ const styles = StyleSheet.create({
     top_section:{
         flexDirection: "row",
         alignItems: 'center',
-        paddingVertical: vs(5),
-        paddingHorizontal: vs(5)
+        paddingRight: vs(5),
+        marginVertical: vs(5)
     },
     pfp:{
         width: hs(40),
@@ -87,11 +87,17 @@ const styles = StyleSheet.create({
         overflow:'hidden'
     },
     caption:{
-        marginBottom: vs(10)
+        marginBottom: vs(10),
+        marginTop: vs(10)
     },
     activityBar:{
         flexDirection:'row',
         justifyContent: 'space-evenly'
+    },
+    imageStyle: {
+        backgroundColor: 'white',  
+        height: vs(300), 
+        marginRight:hs(10)
     }
 })
 

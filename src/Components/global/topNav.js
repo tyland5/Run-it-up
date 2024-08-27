@@ -1,23 +1,27 @@
-import {StyleSheet, Text, View, Button } from 'react-native';
+import {StyleSheet, Text, View, Button, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { StyledText } from './styledComponents';
 import { hs, vs, ms } from './responsiveScaling';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import { AuthContext } from '../login/authContext';
 
-export default function TopNav({hasBackArrow = false, title = ""}){
+const envVariables = require('../../../envVariables.json');
+
+export default function TopNav({hasBackArrow = false, title = "", hasSettings = false}){
     const navigation = useNavigation()
-    const [uid , setUid] = useState(0) 
+    const {selfUid} = useContext(AuthContext) 
+    const [pfp, setPfp] = useState('')
 
     useEffect(()=>{
-        getId();
+        getPfp()
     },[])
 
-    async function getId(){
-        const temp = await AsyncStorage.getItem("uid");
-        setUid(parseInt(temp))
+    async function getPfp(){
+        const resp = await fetch(envVariables.serverURL + "/user/getUserPfp")
+        const respJson = await resp.json()
+        setPfp(respJson.res[0].pfp)
     }
 
     return(
@@ -27,9 +31,16 @@ export default function TopNav({hasBackArrow = false, title = ""}){
             <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
                 <Ionicons name="chevron-back" size = {ms(30)} color ={"white"} />
             </TouchableWithoutFeedback>
+            
             <View style={styles.nav_title}>
                 <StyledText large color="white">{title}</StyledText>
             </View>
+
+            {hasSettings &&
+            <TouchableWithoutFeedback onPress={() => navigation.push("Settings")}>
+                <Ionicons style={{ right:hs(10)}} name="settings" size = {ms(30)} color ={"white"} />
+            </TouchableWithoutFeedback>}
+
         </View>:
 
         <View style={styles.container}>
@@ -37,8 +48,8 @@ export default function TopNav({hasBackArrow = false, title = ""}){
 
         <View style= {styles.iconContainer}>
             <Ionicons name="notifications" size= {ms(30)} color ={"white"} />
-            <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:uid})}>
-                <Ionicons name="person-circle" size= {ms(30)} color ={"white"} />
+            <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:selfUid})}>
+                {pfp && <Image style={{width:ms(30), height: ms(30), borderRadius:ms(30)}} source={{uri:pfp}}></Image>}
             </TouchableWithoutFeedback>
         </View>
         </View>}
@@ -60,12 +71,12 @@ const styles = StyleSheet.create({
 
     iconContainer:{
         flexDirection: "row",
-        gap: hs(20)
+        gap: hs(15),
+        marginRight: hs(5)
     },
     nav_title:{
         marginLeft: "auto",
         marginRight: "auto",
-        paddingRight: hs(10)
     }
     
 })
