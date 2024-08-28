@@ -1,5 +1,5 @@
 import {StyleSheet, Text, View, Button, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation} from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { StyledText } from './styledComponents';
@@ -14,8 +14,27 @@ export default function TopNav({hasBackArrow = false, title = "", hasSettings = 
     const {selfUid} = useContext(AuthContext) 
     const [pfp, setPfp] = useState('')
 
+    // TODO: Honestly horrible, non optimized.
+    // PREVIOUS REASON: this state to help rerender the pfp in nav bar if pfp has same extension. for ex: 5_pfp.jpg -> 5_pfp.jpg doesnt cause rerender since prop same
+    // CURRENT REASON: all pfps are jpgs and have same name. This state is to rerender the pfp in case it was changed
+    const [imageKey, setImageKey] = useState(0)
+
     useEffect(()=>{
-        getPfp()
+        const unsubscribe = navigation.addListener('focus', () => {
+            // need to somehow detect that we came from profile
+            if((title === "")){
+                setImageKey(Date.now())
+            }
+          });
+      
+        return unsubscribe;
+    },[])
+
+    useEffect(()=>{
+        console.log(navigation.getState())
+        if((title === "")){
+            getPfp()
+        }
     },[])
 
     async function getPfp(){
@@ -49,7 +68,7 @@ export default function TopNav({hasBackArrow = false, title = "", hasSettings = 
         <View style= {styles.iconContainer}>
             <Ionicons name="notifications" size= {ms(30)} color ={"white"} />
             <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:selfUid})}>
-                {pfp && <Image style={{width:ms(30), height: ms(30), borderRadius:ms(30)}} source={{uri:pfp}}></Image>}
+                {pfp && <Image style={{width:ms(30), height: ms(30), borderRadius:ms(30)}} source={{uri:pfp}} key={imageKey} onLoad={() => console.log("rendered pfp nav bar")}></Image>}
             </TouchableWithoutFeedback>
         </View>
         </View>}

@@ -57,7 +57,7 @@ export default function EditProfile({route}){
             const info = pfpObject.current[0]
             const extension = info.mimeType.split("/")[1]
             data.append("media", {
-                name: `${formData.uid}_pfp.${extension}`, // TODO: make sure to prepend uid here later on
+                name: `${formData.uid}_pfp.jpg`, // Forced all images to be jpg to allow refresh of pfp in 
                 type: info.type,
                 uri: Platform.OS === "android" ? info.uri : info.uri.replace("file://", "")
             })

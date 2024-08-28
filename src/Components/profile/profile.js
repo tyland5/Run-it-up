@@ -5,7 +5,7 @@ import { hs, vs, ms } from "../global/responsiveScaling";
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import Post from "../post/post";
 import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AuthContext } from "../login/authContext";
 
 const envVariables = require('../../../envVariables.json');
 
@@ -57,6 +57,7 @@ export default function Profile({route}){
     const [showHeader, setShowHeader] = useState(true);
     const [profileInfo, setProfileInfo] = useState({});
     const [isSelf, setIsSelf] = useState(false)
+    const {selfUid, csrfToken} = useContext(AuthContext)
     const navigation = useNavigation();
 
     // trying to prevent react native tab from rerendering on when changin state (following button)
@@ -84,9 +85,8 @@ export default function Profile({route}){
     const getProfileInfo = async () =>{
         const res = await fetch(envVariables.serverURL + "/user/getUserInfo?" + new URLSearchParams({uid: route.params.uid}));
         const jsonRes = await res.json();
-        const uid = await AsyncStorage.getItem('uid')
         
-        if(parseInt(uid) === route.params.uid){
+        if(selfUid === route.params.uid){
             setIsSelf(true)
         }
         else{
@@ -114,7 +114,6 @@ export default function Profile({route}){
     )
 
     const followUser = async() =>{
-        const csrfToken = await AsyncStorage.getItem('csrf-token');
 
         const res = await fetch(envVariables.serverURL +"/user/followUser", {
             method: "POST",
@@ -132,7 +131,6 @@ export default function Profile({route}){
     }
 
     const unfollowUser = async() =>{
-        const csrfToken = await AsyncStorage.getItem('csrf-token');
         const res = await fetch(envVariables.serverURL +"/user/unfollowUser", {
             method: "POST",
             headers: {

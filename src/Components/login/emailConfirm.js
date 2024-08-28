@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {Keyboard, StyleSheet, TouchableOpacity, TextInput, Text, TouchableWithoutFeedback, View, ScrollView} from 'react-native';
-import { useContext } from 'react';
-import { AuthContext } from './authContext';
 import { hs, vs, ms } from '../global/responsiveScaling';
 import { StyledText, StyledTextLabel, StyledTextInput, StyledButton } from '../global/styledComponents';
+import { useNavigation } from '@react-navigation/native';
 
 const envVariables = require('../../../envVariables.json');
 
@@ -12,8 +11,8 @@ export default function EmailConfirm({route}){
 
     const [confCode, setConfCode] = useState('')
     const {generatedCode, accountDetails} = route.params
-    const {loggedIn, setLoggedIn} = useContext(AuthContext)
     const [showErr, setShowErr] = useState(false)
+    const navigation = useNavigation()
 
     useEffect(()=>{
         console.log(generatedCode)
@@ -35,7 +34,7 @@ export default function EmailConfirm({route}){
     
             const jsonRes = await res.json();
             if(jsonRes.response === "good"){
-                setLoggedIn(true)
+                navigation.navigate("Login")
             }
         }
         else{
