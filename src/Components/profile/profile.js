@@ -1,5 +1,6 @@
 import { StyledButton, StyledText } from "../global/styledComponents";
-import { View, StyleSheet, Image, Dimensions, FlatList, ScrollView, TouchableWithoutFeedback } from "react-native";
+import { View, StyleSheet, Dimensions, FlatList, ScrollView, TouchableWithoutFeedback } from "react-native";
+import { Image } from 'expo-image';
 import React, { useState, useContext, useEffect, memo, useMemo, useCallback } from 'react';
 import { hs, vs, ms } from "../global/responsiveScaling";
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
@@ -38,12 +39,11 @@ function PostsTab({onScroll, uid}){
                 style={{width:"100%"}}
                 data={posts}
                 keyExtractor={useCallback(post=> post.post_id, [])}
-                ItemSeparatorComponent={useCallback(() => <View style={{height: vs(30)}}></View>,[])}
                 ListFooterComponent={useCallback(() => <View style={{height:vs(30)}}></View>, [])}
                 onScroll={onScroll}
                 renderItem={useCallback(({item}) => (
                     <View style={{alignItems:'center'}}>
-                        <Post data={{name: item.name, uri: item.uri, caption: item.caption, pfp:item.pfp}} />
+                        <Post data={{uid:item.uid, postId:item['post_id'], name: item.name, uri: item.uri, caption: item.caption, pfp:item.pfp}} />
                     </View>   
                 ), [posts])}
             />
@@ -56,6 +56,8 @@ export default function Profile({route}){
     const [isFollowing, setIsFollowing] = useState(false)
     const [showHeader, setShowHeader] = useState(true);
     const [profileInfo, setProfileInfo] = useState({});
+    const [restrictBio, setRestrictBio] = useState(false);
+    const [showLess, setShowLess] = useState(false);
     const [isSelf, setIsSelf] = useState(false)
     const {selfUid, csrfToken} = useContext(AuthContext)
     const navigation = useNavigation();
@@ -181,11 +183,20 @@ export default function Profile({route}){
             </View>
         </View>
 
-        <View style={{paddingHorizontal: hs(5)}}>
+        <View style={{paddingHorizontal: hs(10)}}>
             <StyledText
             onTextLayout = {(event) =>{
+                if(event.nativeEvent.lines.length > 3 && !showLess){
+                    setRestrictBio(true)
+                }
             }}
-            numberOfLines={3}>{profileInfo.bio}</StyledText>
+            numberOfLines={restrictBio ? 3 : 0}>{profileInfo.bio}</StyledText>
+
+            <View style={{marginVertical:vs(5)}}>
+            {restrictBio && !showLess && 
+            <TouchableWithoutFeedback onPress={() => {setShowLess(true); setRestrictBio(false)}}><StyledText small bold>Show More...</StyledText></TouchableWithoutFeedback>}
+            {showLess && <TouchableWithoutFeedback onPress={() => {setShowLess(false); setRestrictBio(true)}}><StyledText small bold>Show Less...</StyledText></TouchableWithoutFeedback>}
+            </View>
         </View>
         
         <View style={styles.followMetrics}>
@@ -240,7 +251,7 @@ const styles = StyleSheet.create({
         gap: hs(10),
         marginTop:vs(10),
         marginBottom: vs(15),
-        paddingHorizontal: hs(5)
+        paddingHorizontal: hs(10)
     }
 
 })

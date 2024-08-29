@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import { useEffect, memo, useState, useRef } from "react";
-import { FlatList, StyleSheet, View, Dimensions, Image, TouchableWithoutFeedback, TextInput, ScrollView, Platform} from "react-native";
+import { FlatList, StyleSheet, View, Dimensions, TouchableWithoutFeedback, TextInput, ScrollView, Platform} from "react-native";
+import { Image } from "expo-image";
 import { StyledText, StyledButton, StyledTextInput } from "../global/styledComponents";
 import { vs, ms, hs } from "../global/responsiveScaling";
 import styled from 'styled-components/native';
@@ -57,7 +58,7 @@ export default function EditProfile({route}){
             const info = pfpObject.current[0]
             const extension = info.mimeType.split("/")[1]
             data.append("media", {
-                name: `${formData.uid}_pfp.jpg`, // Forced all images to be jpg to allow refresh of pfp in 
+                name: `${formData.uid}_pfp${Date.now()}.jpg`, // Forced all images to be jpg to allow refresh of pfp in 
                 type: info.type,
                 uri: Platform.OS === "android" ? info.uri : info.uri.replace("file://", "")
             })
@@ -108,7 +109,7 @@ export default function EditProfile({route}){
                     <FormLabel bold>Username</FormLabel>
                 </View>
                 <View style={styles.input}>
-                    <FormInput keyboardType={Platform.OS === 'ios' ? 'ascii-capable' : 'visible-password'} placeholder='Username' placeholderTextColor="gray" value ={formData.username} onChangeText={(val) => setFormData({...formData, username:val})}></FormInput>
+                    <FormInput keyboardType={Platform.OS === 'ios' ? 'ascii-capable' : 'visible-password'} placeholder='Username' placeholderTextColor="gray" value ={formData.username} onChangeText={(val) => setFormData({...formData, username:val.toLowerCase()})}></FormInput>
                     {formData.username.length > 20 && <StyledText error>20 characters or less</StyledText>}
                     {formData.username.length === 0 && <StyledText error>Username must be nonempty</StyledText>}
                 </View>

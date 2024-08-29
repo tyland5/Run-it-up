@@ -45,7 +45,6 @@ export default function HomeFeed(){
                 style={{width:"100%",}}
                 data={posts}
                 keyExtractor={post=> post.post_id}
-                ItemSeparatorComponent={() => <View style={{height: vs(30)}}></View>}
                 refreshControl={<RefreshControl
                     colors={["#FFFFFF"]}
                     tintColor={"#FFFFFF"}
@@ -55,7 +54,7 @@ export default function HomeFeed(){
                 
                 renderItem={({item}) => (
                     <View style={{alignItems:'center'}}>
-                        <Post data={{uid: item.uid, name: item.name, uri: item.uri, caption: item.caption, pfp:item.pfp}}>{/* All images would be passed in through here*/}</Post>
+                        <Post data={{uid: item.uid, postId: item['post_id'], name: item.name, uri: item.uri, caption: item.caption, pfp:item.pfp}}>{/* All images would be passed in through here*/}</Post>
                     </View>   
                 )}
             />

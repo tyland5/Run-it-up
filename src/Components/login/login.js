@@ -32,7 +32,7 @@ export default function Login(){
                 const selfUid = await AsyncStorage.getItem('uid')
                 const csrfToken = await AsyncStorage.getItem('csrf-token')
 
-                setSelfUid(selfUid)
+                setSelfUid(parseInt(selfUid))
                 setCsrfToken(csrfToken)
                 setLoggedIn(true)
             }
