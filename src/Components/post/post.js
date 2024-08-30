@@ -1,27 +1,107 @@
 import { useNavigation } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
-import {StyleSheet, View, Button, Image, Dimensions, FlatList, TouchableWithoutFeedback } from 'react-native';
+import { useCallback, useEffect, useMemo, useState, memo, useContext } from 'react';
+import {StyleSheet, View, Button, Dimensions, FlatList, TouchableWithoutFeedback, Pressable, Alert } from 'react-native';
+import { Image } from 'expo-image';
 import { StyledText } from '../global/styledComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { hs, vs, ms } from '../global/responsiveScaling';
+import React from 'react';
+import { AuthContext } from '../login/authContext';
+const envVariables = require('../../../envVariables.json');
 
-export default function Post({data}){
-
+// need memo here to tell react to not rerender post if its props doesn't change
+const Post = memo(function Post({data}){
+    const [isDeleted, setIsDeleted] = useState(false)
+    const [showOptions, setShowOptions] = useState(false)
+    const {selfUid, csrfToken} = useContext(AuthContext)
     const navigation = useNavigation();
-    const [uris, setUris] = useState([]) 
-
-    useEffect(()=>{
+    const { width, height } = Dimensions.get('window');
+    const uris =  useMemo(() => {
         if(data.uri !== null){
-            setUris(data.uri.split(','))
+            return data.uri.split(',')
         }
+        return []
     }, [])
 
+    useEffect(()=>{
+        console.log("rerendering from post 22222222")
+    }, [])
+
+    useEffect(()=>{
+        console.log("rerendering from post")
+    })
+
+    // we set state to get rid of render in the feed without changing data and rerendering the entire list
+    async function deletePost(){
+        const response = await fetch(envVariables.serverURL + "/post/deletePost",{
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+               Accept : "application/json",
+               'x-csrf-token': csrfToken
+            },
+            body: JSON.stringify({
+                postId: data.postId
+            }),
+        })
+
+        if(response.status===200){
+            setIsDeleted(true)
+        }
+    }
+
+    const createDeletePostAlert = () =>
+        Alert.alert('Delete Post', 'Are you sure you want to delete this post?', [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {text: 'Delete', style:'destructive', onPress: () => deletePost()},
+    ]);
+    
     return(
         <View style={styles.container}>
+            {!isDeleted && 
+            <>
             <View style={styles.top_section}>
-                <Image style={styles.pfp} source={{uri: "https://b.fssta.com/uploads/application/nba/headshots/2374.vresize.350.350.medium.84.png"}}/>
-                <StyledText bold >{data.fname} {data.lname}</StyledText>
+                <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:data.uid})}>
+                    <Image style={styles.pfp} source={{uri:data.pfp}}/> 
+                </TouchableWithoutFeedback>
+                <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:data.uid})}>
+                    <StyledText bold >{data.name}</StyledText>
+                </TouchableWithoutFeedback>
+
+                {data.uid === selfUid &&
+                <>
+                <TouchableWithoutFeedback onPress={() => setShowOptions(!showOptions)}>
+                    <View style={{marginLeft:'auto', height:'100%', zIndex:2}}>
+                        <StyledText large bold  >...</StyledText>
+                    </View>
+                </TouchableWithoutFeedback>
+
+                {showOptions && 
+                <>
+                <TouchableWithoutFeedback onPressIn={()=>setShowOptions(false)}><View style={{zIndex:2, width:width, height:height, position:'absolute'}}></View></TouchableWithoutFeedback>
+                <View style={styles.optionsBlock}>
+                    <View style={styles.optionsBlockRow}>
+                        <StyledText bold>Edit Post</StyledText>
+                        <Ionicons name="pencil" size={ms(16)} color={"white"}/>
+                    </View>
+
+                    <TouchableWithoutFeedback onPress={() => createDeletePostAlert()}>
+                        <View style={styles.optionsBlockRow}>
+                            <StyledText bold error>Delete Post</StyledText>
+                            <Ionicons name="trash" size={ms(16)} color={"red"}/>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </View>
+                </>
+                }
+                </>} 
+
             </View>
+
             { data.uri && 
             <FlatList
                 data={uris}
@@ -29,13 +109,13 @@ export default function Post({data}){
                 renderItem={({item, index})=>(
                     <>
                     <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: uris, index: index})}>
-                        <Image style={{ backgroundColor: 'white', width:Dimensions.get('screen').width * .9 * .9, height: vs(300), marginRight:hs(10)}} source={{uri: item}}/>
+                        <Image style={uris.length === 1 ? [styles.imageStyle, {width:width * .9}] : [styles.imageStyle, {width:width * .9 *.9}]} source={{uri: item}}/>
                     </TouchableWithoutFeedback>
                     </>
                 )}
                 showsHorizontalScrollIndicator={false}
             />
-}
+            }
 
             <View style={styles.caption}>
                 <StyledText>{data.caption}</StyledText>
@@ -47,18 +127,22 @@ export default function Post({data}){
                 <Ionicons name="arrow-redo-outline" size = {ms(25)} color ={"white"} />
                 <Ionicons name="bookmark-outline" size = {ms(25)} color ={"white"} />
             </View>
-        </View>)
-}
+            </>
+            }
+        </View>
+    )
+})
 
 const styles = StyleSheet.create({
     container:{
-        width: "90%",
+        width: "90%"
     }, 
     top_section:{
         flexDirection: "row",
         alignItems: 'center',
-        paddingVertical: vs(5),
-        paddingHorizontal: vs(5)
+        paddingRight: vs(5),
+        marginVertical: vs(5),
+        zIndex:1
     },
     pfp:{
         width: hs(40),
@@ -74,10 +158,34 @@ const styles = StyleSheet.create({
         overflow:'hidden'
     },
     caption:{
-        marginBottom: vs(10)
+        marginBottom: vs(10),
+        marginTop: vs(10)
     },
     activityBar:{
         flexDirection:'row',
-        justifyContent: 'space-evenly'
+        justifyContent: 'space-evenly',
+        marginBottom: vs(30),
+    },
+    imageStyle: {
+        backgroundColor: 'white',  
+        height: vs(300), 
+        marginRight:hs(10),
+    },
+    optionsBlock:{
+        backgroundColor: "#121212",
+        height:vs(70), 
+        width:"50%", 
+        position:'absolute', 
+        right: 0, 
+        top: vs(45),
+        gap: vs(15),
+        zIndex:2
+    },
+    optionsBlockRow:{
+        flexDirection:'row',
+        justifyContent:'space-between',
+        paddingHorizontal: hs(5)
     }
 })
+
+export default Post

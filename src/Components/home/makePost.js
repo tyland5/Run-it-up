@@ -2,12 +2,14 @@ import {StyleSheet, Text, View, Button, Image, TextInput, TouchableWithoutFeedba
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import useKeyboardHeight from 'react-native-use-keyboard-height';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useContext } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { hs, vs, ms } from '../global/responsiveScaling';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { StyledButton, StyledText } from '../global/styledComponents';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from '../login/authContext';
 
 const envVariables = require('../../../envVariables.json');
 
@@ -22,9 +24,10 @@ export default function MakePost({media}){
     const [thumbnailHeight, setThumbnailHeight] = useState(0)
     const [caption, setCaption] = useState('');
     const bottomTabBarHeight = useBottomTabBarHeight(); 
-    
+    const {loggedIn, setLoggedIn} = useContext(AuthContext);
 
     useEffect(() => {
+
         const keyboardDidShowListener = Keyboard.addListener(
           'keyboardDidShow',
           () => {
@@ -37,7 +40,7 @@ export default function MakePost({media}){
             setKeyboardShown(false);
           }
         );
-    
+
         return () => {
           keyboardDidHideListener.remove();
           keyboardDidShowListener.remove();
@@ -63,13 +66,20 @@ export default function MakePost({media}){
             })
         }
 
+        const csrfToken = await AsyncStorage.getItem('csrf-token')
         const response = await fetch(envVariables.serverURL +"/post/makePost", {
             method: "POST",
             headers: {
-              "Content-Type": "multipart/form-data"
+              "Content-Type": "multipart/form-data",
+              "X-CSRF-Token": csrfToken
             },
             body: data
         })
+
+        if(response.status === 401){
+            setLoggedIn(false)
+            return
+        }
 
         navigation.goBack();
     }

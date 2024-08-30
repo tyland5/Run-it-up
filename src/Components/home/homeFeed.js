@@ -9,7 +9,7 @@ import { hs, vs, ms } from '../global/responsiveScaling';
 const envVariables = require('../../../envVariables.json');
 
 export default function HomeFeed(){
-    const [loggedIn, setLoggedIn] = useContext(AuthContext);
+    const {loggedIn, setLoggedIn} = useContext(AuthContext);
     const [posts, setPosts] = useState(null)
     const navigation = useNavigation();
     const [refreshing, setRefreshing] = React.useState(false);
@@ -45,7 +45,6 @@ export default function HomeFeed(){
                 style={{width:"100%",}}
                 data={posts}
                 keyExtractor={post=> post.post_id}
-                ItemSeparatorComponent={() => <View style={{height: vs(30)}}></View>}
                 refreshControl={<RefreshControl
                     colors={["#FFFFFF"]}
                     tintColor={"#FFFFFF"}
@@ -55,7 +54,7 @@ export default function HomeFeed(){
                 
                 renderItem={({item}) => (
                     <View style={{alignItems:'center'}}>
-                        <Post data={{fname: item.fname, lname:item.lname, uri: item.uri, caption: item.caption}}>{/* All images would be passed in through here*/}</Post>
+                        <Post data={{uid: item.uid, postId: item['post_id'], name: item.name, uri: item.uri, caption: item.caption, pfp:item.pfp}}>{/* All images would be passed in through here*/}</Post>
                     </View>   
                 )}
             />

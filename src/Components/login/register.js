@@ -14,8 +14,7 @@ export default function Register(){
         username: '',
         password: '',
         confirmPass: '',
-        fname: '',
-        lname: '',
+        name: '',
         email: ''
     })
 
@@ -23,8 +22,7 @@ export default function Register(){
         username: false,
         password: false,
         confirmPass: false,
-        fname: false,
-        lname: false,
+        name: false,
         email: false,
         usernameDup: false,
         emailDup: false
@@ -41,8 +39,7 @@ export default function Register(){
             username: false,
             password: false,
             confirmPass: false,
-            fname: false,
-            lname: false,
+            name: false,
             email: false,
             usernameDup: false,
             emailDup: false
@@ -64,13 +61,9 @@ export default function Register(){
             numErr += 1
             err.confirmPass = true
         }
-        if(formData.fname < 1){
+        if(formData.name < 1){
             numErr += 1
-            err.fname = true
-        }
-        if(formData.lname < 1){
-            numErr += 1
-            err.lname = true
+            err.name = true
         }
         
 
@@ -115,14 +108,9 @@ export default function Register(){
                 {formErr.usernameDup ? <StyledTextLabel error>This username is already taken</StyledTextLabel> : <></>}
                 <View style={{height: vs(15)}}></View>
 
-                <StyledTextLabel>First Name <StyledText color="red">*</StyledText> </StyledTextLabel>
-                <StyledTextInput placeholder='First Name' placeholderTextColor="gray" value={formData.fname} onChangeText={(val) => setFormData({...formData, fname:val})}></StyledTextInput>
-                {formErr.fname ? <StyledTextLabel error>Please enter a non empty first name</StyledTextLabel> : <></>}
-                <View style={{height: vs(15)}}></View>
-
-                <StyledTextLabel>Last Name <StyledText color="red">*</StyledText> </StyledTextLabel>
-                <StyledTextInput placeholder='Last name' placeholderTextColor="gray" value={formData.lname} onChangeText={(val) => setFormData({...formData, lname:val})}></StyledTextInput>
-                {formErr.lname ? <StyledTextLabel error>Please enter a non empty last name</StyledTextLabel> : <></>}
+                <StyledTextLabel>Name <StyledText color="red">*</StyledText> </StyledTextLabel>
+                <StyledTextInput placeholder='Name' placeholderTextColor="gray" value={formData.name} onChangeText={(val) => setFormData({...formData, name:val})}></StyledTextInput>
+                {formErr.name ? <StyledTextLabel error>Please enter a non empty name</StyledTextLabel> : <></>}
                 <View style={{height: vs(15)}}></View>
 
                 <StyledTextLabel>Email <StyledText color="red">*</StyledText> </StyledTextLabel>
@@ -141,7 +129,7 @@ export default function Register(){
                 {formErr.confirmPass ? <StyledTextLabel error>Passwords do not match</StyledTextLabel> : <></>}
                 <View style={{height: vs(15)}}></View>
 
-                <StyledButton onPress={handleRegister}>
+                <StyledButton large onPress={handleRegister}>
                     <StyledText bold>Register</StyledText>
                 </StyledButton>
                 <View style={{height: vs(30)}}></View>

@@ -6,6 +6,9 @@ envVariables.json
 # dependencies
 node_modules/
 
+src/components/profile/bg-test.png
+src/components/profile/pfp-test.png
+
 # Expo
 .expo/
 dist/

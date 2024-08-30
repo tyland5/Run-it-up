@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from 'styled-components/native';
 import React from 'react';
 import { View, Text, TextInput, TouchableWithoutFeedback} from 'react-native';
 import {hs, vs, ms} from "./responsiveScaling"; 
@@ -6,6 +6,9 @@ import {hs, vs, ms} from "./responsiveScaling";
 //https://medium.com/building-crowdriff/styled-components-to-use-or-not-to-use-a6bb4a7ffc21
 export const StyledText = styled.Text`
     font-size: ${ms(16)}px;
+     ${props => props.small && `
+     font-size: ${ms(14)}px;
+    `}
     ${props => props.large && `
      font-size: ${ms(28)}px;
     `}
@@ -18,7 +21,7 @@ export const StyledText = styled.Text`
         color: red;
     `}
 
-    margin: ${props=> props.margin ? props.margin : 0};
+    margin: ${props=> props.margin ? props.margin : 0}px;
     fontWeight: ${props => props.bold ? "bold" : "normal"};
     ${props => props.underline && `textDecorationLine: underline;`}
 `;
@@ -35,6 +38,9 @@ export const StyledTextInput = styled.TextInput`
     borderWidth: ${ms(2)}px;
     borderColor: white;
     borderRadius: ${ms(8)}px;
+    ${props => props.height && `
+        height: ${props.height}px;
+    `}
 `;
 
 export const StyledTextLabel = styled(StyledText)`
@@ -44,15 +50,21 @@ export const StyledTextLabel = styled(StyledText)`
     `;
 
 export const StyledButton = styled.Pressable`
-    width: ${hs(150)}px;
-    height: ${vs(70)}px;
+    width: ${hs(90)}px;
+    height: ${vs(30)}px;
     ${props => props.small && `
-        width: ${hs(50)}px;
+        width: ${hs(60)}px;
         height: ${vs(30)}px;
     `}
+    ${props => props.large && `
+        width: ${hs(150)}px;
+        height: ${vs(70)}px;
+    `}
 
-    backgroundColor: #F57600;
+    backgroundColor: ${props => props.bgColor ? props.bgColor : "#F57600"};
     alignItems: center;
     justifyContent: center;
     borderRadius: ${ms(8)}px;
+    borderWidth: ${props => props.borderWidth ? props.borderWidth : 0}px;
+    borderColor: ${props => props.borderColor ? props.borderColor : "white"};
 `;
