@@ -2,9 +2,15 @@ import {StyleSheet, Text, View, Button, Image, TextInput, TouchableWithoutFeedba
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import useKeyboardHeight from 'react-native-use-keyboard-height';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useContext } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
+import { hs, vs, ms } from '../global/responsiveScaling';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { StyledButton, StyledText } from '../global/styledComponents';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from '../login/authContext';
+
 const envVariables = require('../../../envVariables.json');
 
 export default function MakePost({media}){
@@ -17,6 +23,29 @@ export default function MakePost({media}){
     const [uploadedMediaObj, setUploadedMediaObj] = useState([])
     const [thumbnailHeight, setThumbnailHeight] = useState(0)
     const [caption, setCaption] = useState('');
+    const bottomTabBarHeight = useBottomTabBarHeight(); 
+    const {loggedIn, setLoggedIn} = useContext(AuthContext);
+
+    useEffect(() => {
+
+        const keyboardDidShowListener = Keyboard.addListener(
+          'keyboardDidShow',
+          () => {
+            setKeyboardShown(true);
+          }
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+          'keyboardDidHide',
+          () => {
+            setKeyboardShown(false);
+          }
+        );
+
+        return () => {
+          keyboardDidHideListener.remove();
+          keyboardDidShowListener.remove();
+        };
+      }, []);
 
     async function createPost(){
         if(caption === "" || caption === "" && uploadedMedia.length === 0){
@@ -37,13 +66,20 @@ export default function MakePost({media}){
             })
         }
 
+        const csrfToken = await AsyncStorage.getItem('csrf-token')
         const response = await fetch(envVariables.serverURL +"/post/makePost", {
             method: "POST",
             headers: {
-              "Content-Type": "multipart/form-data"
+              "Content-Type": "multipart/form-data",
+              "X-CSRF-Token": csrfToken
             },
             body: data
         })
+
+        if(response.status === 401){
+            setLoggedIn(false)
+            return
+        }
 
         navigation.goBack();
     }
@@ -86,38 +122,37 @@ export default function MakePost({media}){
     
             <View style = {styles.topSection}>
                 <TouchableWithoutFeedback onPress={()=>navigation.goBack()}>
-                    <Ionicons name="close" size = {30} color ={"white"} />
+                    <Ionicons name="close" size = {ms(30)} color ={"white"} />
                 </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={createPost}>
-                    <Text style={styles.postBtn}>Post</Text>
-                </TouchableWithoutFeedback>
+                <StyledButton small onPress={createPost}>
+                    <StyledText bold>Post</StyledText>
+                </StyledButton>
             </View>
             
 
-            <View style ={keyboardShown? {height:screenHeight - keyboardHeight - 60 - 90} :  {height:screenHeight- 140 - 90}}>
+            <View style ={keyboardShown? {height:screenHeight - keyboardHeight - vs(60) - vs(90)} :  {height:screenHeight- vs(60) - bottomTabBarHeight - vs(90)}}>
                 <ScrollView keyboardShouldPersistTaps={'always'} keyboardDismissMode={'on-drag'}>   
                     <TextInput style={styles.postCaptionInput} 
                     multiline= {true} placeholder="Let Em Know..." placeholderTextColor={"gray"} 
-                    onFocus={() => {setKeyboardShown(true)}} onBlur={()=> {setKeyboardShown(false)}}
                     scrollEnabled={false} onChangeText={(caption) => setCaption(caption)}></TextInput> 
 
                     {uploadedMedia.length != 0 && 
                     <>
                         <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: uploadedMedia, index: 0})}>
-                            <Image resizeMode={"cover"} style={{ width:"100%", height: thumbnailHeight, marginRight:10, marginTop: 20}} source={{uri:uploadedMedia[0]}}/>
+                            <Image resizeMode={"cover"} style={{ width:"100%", height: thumbnailHeight, marginRight: hs(10), marginTop: vs(20)}} source={{uri:uploadedMedia[0]}}/>
                         </TouchableWithoutFeedback>
-                        <Text style={styles.mediaQty}>{uploadedMedia.length} files chosen</Text>
+                        <StyledText bold>{uploadedMedia.length} file(s) chosen</StyledText>
                     </>}
                 </ScrollView>
             </View>
 
             <View style={styles.attachmentsContainer}>
                 <TouchableWithoutFeedback onPress={openCamera}>
-                    <Ionicons name="camera-outline" size = {30} color ={"white"} />
+                    <Ionicons name="camera-outline" size = {ms(30)} color ={"white"} />
                 </TouchableWithoutFeedback>
 
                 <TouchableWithoutFeedback onPress={openCameraRoll}>
-                    <Ionicons name="image-outline" size = {30} color ={"white"} />
+                    <Ionicons name="image-outline" size = {ms(30)} color ={"white"} />
                 </TouchableWithoutFeedback>
             </View>
         </View>
@@ -130,43 +165,32 @@ const styles = StyleSheet.create({
         backgroundColor: "#121212",
     },
     postCaptionInput:{
-        fontSize: 18,
+        fontSize: ms(18),
         color: 'white',
-        marginLeft: 10,
-        
+        marginLeft: hs(10),
     },
     closeContainer:{
         position: 'absolute',
-        top:40,
-        left: 10,
+        top: vs(40),
+        left: hs(10),
     },
     topSection:{
-        height:90,
+        height: vs(90),
         flexDirection:"row",
         justifyContent:"space-between",
         alignItems: "flex-end",
-        paddingBottom: 15,
-        paddingLeft:10,
-        paddingRight: 15,
-    },
-    postBtn:{
-        fontSize:18,
-        color:"white"
+        paddingBottom: vs(15),
+        paddingLeft:hs(10),
+        paddingRight: hs(15),
     },
     attachmentsContainer:{
         zIndex: 1,
-        height: 60,
+        height: vs(60),
         flexDirection: "row",
         alignItems: "center",
-        paddingLeft:10,
-        gap:15,
-        borderTopWidth:2,
-        borderTopColor: "white"
+        paddingLeft:hs(10),
+        gap:hs(15),
+        borderTopWidth:vs(2),
+        borderTopColor: "white",
     },
-    mediaQty:{
-        fontSize: 18,
-        color:"white",
-        alignSelf:"flex-end"
-    }
-
 })
