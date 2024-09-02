@@ -24,7 +24,7 @@ export default function MakePost({media}){
     const [thumbnailHeight, setThumbnailHeight] = useState(0)
     const [caption, setCaption] = useState('');
     const bottomTabBarHeight = useBottomTabBarHeight(); 
-    const {loggedIn, setLoggedIn} = useContext(AuthContext);
+    const {loggedIn, setLoggedIn, selfUid} = useContext(AuthContext);
 
     useEffect(() => {
 
@@ -59,13 +59,14 @@ export default function MakePost({media}){
         for(let i =0; i < uploadedMediaObj.length; i++){
             const info = uploadedMediaObj[i]
             const extension = info.mimeType.split("/")[1]
+            const dateTime = Date.now()
             data.append("media", {
-                name: `${Date.now()}.${extension}`, // TODO: make sure to prepend uid here later on
+                name: `${selfUid}${dateTime}${i}.${extension}`, // TODO: make sure to prepend uid here later on
                 type: info.type,
                 uri: Platform.OS === "android" ? info.uri : info.uri.replace("file://", "")
             })
         }
-
+       
         const csrfToken = await AsyncStorage.getItem('csrf-token')
         const response = await fetch(envVariables.serverURL +"/post/makePost", {
             method: "POST",

@@ -7,49 +7,11 @@ import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import Post from "../post/post";
 import { useNavigation } from "@react-navigation/native";
 import { AuthContext } from "../login/authContext";
+import PostList from "../post/postList";
 
 const envVariables = require('../../../envVariables.json');
 
 // this prevents rerender of flatlist when props dont change. need custom comparison since objects arent compared properly by default
-//const MemoTabView = memo(TabView, (oldProps, newProps) => { console.log(oldProps); console.log(newProps); return newProps.navigationState.renderScene == oldProps.navigationState.renderScene})
-
-const MemoFlatList = memo(FlatList, (oldProps, newProps) => { return JSON.stringify(newProps) === JSON.stringify(oldProps)})
-function PostsTab({onScroll, uid}){
-    const [prePosts, setPrePosts] = useState([])
-    
-    useEffect(()=>{
-        getPosts();
-    }, [])
-
-    useEffect(() =>{
-        console.log("rerendering from posts tab")
-    })
-
-    async function getPosts(){
-        const thePosts = await fetch(envVariables.serverURL + "/post/getPosts?" + new URLSearchParams({uid: uid }));
-        const data = await thePosts.json()
-        setPrePosts(data.res)
-    }
-    
-    
-    const posts = useMemo(()=> {return prePosts}, [prePosts])
-    return(
-        <View style = {[styles.container, {marginTop: vs(10)}]}>
-            <MemoFlatList 
-                style={{width:"100%"}}
-                data={posts}
-                keyExtractor={useCallback(post=> post.post_id, [])}
-                ListFooterComponent={useCallback(() => <View style={{height:vs(30)}}></View>, [])}
-                onScroll={onScroll}
-                renderItem={useCallback(({item}) => (
-                    <View style={{alignItems:'center'}}>
-                        <Post data={{uid:item.uid, postId:item['post_id'], name: item.name, uri: item.uri, caption: item.caption, pfp:item.pfp}} />
-                    </View>   
-                ), [posts])}
-            />
-        </View>
-    )
-}
 
 export default function Profile({route}){
     const pfpBorderRadius = Dimensions.get('window').width * .3 // decimal based on pfp width percentage
@@ -98,7 +60,7 @@ export default function Profile({route}){
         setProfileInfo(jsonRes.res[0])
     }
 
-    const MemoTabsView = () => <PostsTab uid = {route.params.uid} onScroll={(event) => {
+    const MemoTabsView = () => <PostList filters={{uid : route.params.uid}} onScroll={(event) => {
         if(event.nativeEvent.contentOffset.y > 0){
             setShowHeader(false)
         }

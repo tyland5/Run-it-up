@@ -19,6 +19,8 @@ import FollowPage from './src/Components/profile/followPage';
 import Settings from './src/Components/profile/settings';
 import { useEffect, useState, useContext } from 'react';
 import { AuthContext } from './src/Components/login/authContext';
+import { Provider } from 'react-redux';
+import store from "./src/Components/post/likedPostsStore"
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {hs, vs, ms} from "./src/Components/global/responsiveScaling";
 
@@ -89,14 +91,15 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{loggedIn, setLoggedIn, selfUid, setSelfUid, csrfToken, setCsrfToken}}>
+    <Provider store={store}>
       <NavigationContainer>
         <RootStack.Navigator screenOptions={{headerShown: false}}>
-          {loggedIn ? 
-          <RootStack.Screen name= "appTabs" component={AppTabs}/> :
+          {loggedIn ? <RootStack.Screen name= "appTabs" component={AppTabs}/> :
           <RootStack.Screen name= "loginStack" component={LoginStackScreen}/>
           }
         </RootStack.Navigator>
       </NavigationContainer>
+    </Provider>
     </AuthContext.Provider>
   );
 }

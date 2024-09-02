@@ -7,12 +7,28 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { hs, vs, ms } from '../global/responsiveScaling';
 import React from 'react';
 import { AuthContext } from '../login/authContext';
+import { useSelector, useDispatch } from 'react-redux'
+import { likePost, unlikePost } from './likedPostsSlice'
+
 const envVariables = require('../../../envVariables.json');
 
 // need memo here to tell react to not rerender post if its props doesn't change
 const Post = memo(function Post({data}){
     const [isDeleted, setIsDeleted] = useState(false)
     const [showOptions, setShowOptions] = useState(false)
+    const liked = useSelector((state) => state.likedPosts.value.hasOwnProperty(data.postId) ? true : false)
+    /* essentially same as removing 1 like. 
+    IMPORTANT: i might have to store posts by default with their like count and boolean like value to maintain consistency. 
+    data.likecount can be different accross screens. EX: profile gets a more updated like count due to fetch */
+    const likeCount = useSelector((state) => {
+        if(state.likedPosts.value.hasOwnProperty(data.postId)){
+            return state.likedPosts.value[data.postId] 
+        }
+        if(data.liked){ // post is unliked and was liked originally
+            return data.likeCount - 1
+        }
+        return data.likeCount})
+    const dispatch = useDispatch()
     const {selfUid, csrfToken} = useContext(AuthContext)
     const navigation = useNavigation();
     const { width, height } = Dimensions.get('window');
@@ -30,6 +46,49 @@ const Post = memo(function Post({data}){
     useEffect(()=>{
         console.log("rerendering from post")
     })
+
+
+    // also considers unlike
+    async function likePostHere(){
+        let response = {}
+        if(liked === true){
+            //unlike the post now
+            response = await fetch(envVariables.serverURL + "/post/unlikePost",{
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                   Accept : "application/json",
+                   'x-csrf-token': csrfToken
+                },
+                body: JSON.stringify({
+                    postId: data.postId
+                }),
+            })
+        }
+        else{
+            // like the post since its not liked yet
+            response = await fetch(envVariables.serverURL + "/post/likePost",{
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                   Accept : "application/json",
+                   'x-csrf-token': csrfToken
+                },
+                body: JSON.stringify({
+                    postId: data.postId
+                }),
+            })
+        }
+        if(response.status === 200){
+            if(liked){
+                dispatch(unlikePost(data.postId))
+            }
+            else{
+                const payload = [data.postId, likeCount+1]
+                dispatch(likePost(payload))
+            }
+        }
+    }
 
     // we set state to get rid of render in the feed without changing data and rerendering the entire list
     async function deletePost(){
@@ -122,7 +181,13 @@ const Post = memo(function Post({data}){
             </View>
 
             <View style={styles.activityBar}>
-                <Ionicons name="heart-outline" size = {ms(25)} color ={"white"} />
+                <View style={styles.buttonContainer}>
+                    <TouchableWithoutFeedback onPress={()=>likePostHere()}>
+                        <Ionicons name={liked ? "heart" : "heart-outline"} size = {ms(25)} color ={liked ? "red" : "white"} />
+                    </TouchableWithoutFeedback>
+                    <StyledText small bold>{likeCount}</StyledText>
+                </View>
+
                 <Ionicons name="chatbubble-outline" size = {ms(25)} color ={"white"} />
                 <Ionicons name="arrow-redo-outline" size = {ms(25)} color ={"white"} />
                 <Ionicons name="bookmark-outline" size = {ms(25)} color ={"white"} />
@@ -185,6 +250,11 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         justifyContent:'space-between',
         paddingHorizontal: hs(5)
+    },
+    buttonContainer:{
+        flexDirection:'row',
+        gap: hs(5),
+        alignItems: 'center'
     }
 })
 
