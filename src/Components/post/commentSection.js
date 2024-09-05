@@ -1,4 +1,4 @@
-import { View, StyleSheet, FlatList, Image, Dimensions, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback} from "react-native"
+import {Animated, Alert, View, StyleSheet, FlatList, Image, Dimensions, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback} from "react-native"
 import { StyledText } from "../global/styledComponents"
 import { vs, hs, ms } from "../global/responsiveScaling"
 import { useCallback, useEffect, useState, useMemo, useContext } from "react"
@@ -6,21 +6,99 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { AuthContext } from "../login/authContext";
 import { useHeaderHeight } from '@react-navigation/elements'
 import { useSelector } from "react-redux";
+import { RectButton} from "react-native-gesture-handler";
+import Swipeable from "react-native-gesture-handler/Swipeable";
 
 const pfpDimensions = Dimensions.get('window').width * .12
 const envVariables = require('../../../envVariables.json');
 
-function Comment({pfp, name, username, comment}){
+function Comment({uid, commentId, pfp, name, username, comment}){
+    const [restrictComment, setRestrictComment] = useState(false)
+    const [showComment, setShowComment] = useState(true)
+    const [showLess, setShowLess] = useState(false)
+    const {selfUid, csrfToken} = useContext(AuthContext)
+
+    const createDeleteCommentAlert = () =>
+        Alert.alert('Delete Comment', 'Are you sure you want to delete this comment?', [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {text: 'Delete', style:'destructive', onPress: () => deleteComment()},
+    ]);
+
+    const deleteComment = async () =>{
+        const response = await fetch(envVariables.serverURL + "/post/deleteComment",{
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+               Accept : "application/json",
+               'x-csrf-token': csrfToken
+            },
+            body: JSON.stringify({
+                commentId: commentId
+            }),
+        }) 
+
+        if(response.status === 200){
+            setShowComment(false)
+        }
+    }
+
+    renderRightActions = (progress, dragX) => {
+        
+        const trans = progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [hs(70), 0],
+          extrapolate: 'clamp',
+        });
+        
+       
+        return (
+          <RectButton onPress={() => createDeleteCommentAlert()}>
+            <Animated.View
+              style={[
+                {backgroundColor:'red', height:'100%', width:hs(70), justifyContent:'center', alignItems:'center'},
+
+                {transform: [{ translateX: trans }]},
+              ]}>
+              <Ionicons name="trash" color="white" size={ms(30)}></Ionicons>
+            </Animated.View>
+          </RectButton>
+        );
+      };
+
 
     return(
-    <View style={{flexDirection:'row', paddingHorizontal:hs(10), gap:hs(10)}}>
-        <Image style={{width: pfpDimensions, height: pfpDimensions, borderRadius: pfpDimensions}} source={{uri:pfp}} />
-        <View style={{flex: 1}}>
-            <StyledText bold>{name}</StyledText>
-           
-            <StyledText>{comment}</StyledText>
+    <>
+    {showComment && 
+    <Swipeable
+        ref={null}
+        friction={2}
+        rightThreshold={30}
+        renderRightActions={selfUid === uid ? renderRightActions : ()=>{}}>
+        <View style={{flexDirection:'row', paddingLeft:hs(10), gap:hs(10), marginBottom:vs(20)}}>
+            <Image style={{width: pfpDimensions, height: pfpDimensions, borderRadius: pfpDimensions}} source={{uri:pfp}} />
+            <View style={{flex: 1}}>
+                <StyledText bold>{name}</StyledText>
+
+                {/* comment itself */}
+                <StyledText onTextLayout = {(event) =>{
+                    if(event.nativeEvent.lines.length > 3 && !showLess){
+                        setRestrictComment(true)
+                    }
+                }}
+                numberOfLines={restrictComment ? 3 : 0}>{comment}</StyledText>
+
+                {restrictComment && !showLess && 
+                <TouchableWithoutFeedback onPress={() => {setShowLess(true); setRestrictComment(false)}}><StyledText small bold>Show More...</StyledText></TouchableWithoutFeedback>}
+                {showLess && <TouchableWithoutFeedback onPress={() => {setShowLess(false); setRestrictComment(true)}}><StyledText small bold>Show Less...</StyledText></TouchableWithoutFeedback>}
+            </View>
         </View>
-    </View>
+    </Swipeable>
+    }
+    </>
     )
 }
 
@@ -57,9 +135,11 @@ export default function CommentSection({route}){
                 comment: newComment
             }),
         }) // might need to return the new comment id for when i implement delete comment feature
-        
+
         if(response.status === 200){
-            setPreComments([{pfp: uInfo.pfp, name:uInfo.name, username: uInfo.username, comment:newComment}, ...preComments])
+            const respJson = await response.json()
+            
+            setPreComments([{uid: selfUid, comment_id: respJson.res, pfp: uInfo.pfp, name:uInfo.name, username: uInfo.username, comment:newComment}, ...preComments])
             setNewComment("")
         }
     }
@@ -72,10 +152,9 @@ export default function CommentSection({route}){
             <FlatList
                 data= {comments}
                 keyExtractor={useCallback(comment=> comment.comment_id, [])}
-                ItemSeparatorComponent={useCallback(() => <View style={{height:vs(20)}}></View>,[])}
                 ListHeaderComponent={useCallback(() => <View style={{height:vs(15)}}></View>,[])}
                 renderItem={useCallback(({item})=>(
-                    <Comment pfp={item.pfp} name={item.name} username={item.username} comment={item.comment} />
+                    <Comment uid = {item.uid} commentId = {item.comment_id} pfp={item.pfp} name={item.name} username={item.username} comment={item.comment} />
                 ),[comments])}
             />
             <View style={styles.makeComment}>
