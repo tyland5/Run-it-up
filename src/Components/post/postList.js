@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState, useEffect, useMemo} from 'react';
 import { useSelector, useDispatch } from 'react-redux'
-import { likePost, unlikePost } from './likedPostsSlice'
+import { likePost, unlikePost } from './likedPostsStore'
 import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import { vs, hs, ms } from '../global/responsiveScaling';
 
@@ -46,7 +46,7 @@ export default function PostList({onScroll = ()=>{}, filters = {}, refreshEnable
     
     const posts = useMemo(()=> {return prePosts}, [prePosts])
     return(
-        <View style = {[styles.container, {marginTop: vs(10)}]}>
+        <View style = {styles.container}>
             <FlatList 
                 style={{width:"100%"}}
                 data={posts}
@@ -61,7 +61,7 @@ export default function PostList({onScroll = ()=>{}, filters = {}, refreshEnable
                 onScroll={onScroll}
                 renderItem={useCallback(({item}) => (
                     <View style={{alignItems:'center'}}>
-                        <Post data={{uid:item.uid, postId:item['post_id'], likeCount: item.likes, liked: item.liked, name: item.name, uri: item.uri, caption: item.caption, pfp:item.pfp}} />
+                        <Post data={{uid:item.uid, postId:item['post_id'], likeCount: item.likes, liked: item.liked, commentCount: item.comments, name: item.name, uri: item.uri, caption: item.caption, pfp:item.pfp}} />
                     </View>   
                 ), [posts])}
             />

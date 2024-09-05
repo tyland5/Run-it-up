@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useContext } from "react";
 import { useEffect, memo, useState, useRef } from "react";
 import { FlatList, StyleSheet, View, Dimensions, TouchableWithoutFeedback, TextInput, ScrollView, Platform} from "react-native";
 import { Image } from "expo-image";
@@ -8,6 +8,9 @@ import styled from 'styled-components/native';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch, useSelector } from 'react-redux'
+import { setUserInfo } from '../post/likedPostsStore';
+import { AuthContext } from "../login/authContext";
 
 const envVariables = require('../../../envVariables.json');
 
@@ -26,16 +29,19 @@ const FormInput = styled(StyledTextInput)`
 export default function EditProfile({route}){
     const navigation = useNavigation()
     const pfpDimensions= Dimensions.get('window').width * .3 
+    const {selfUid} = useContext(AuthContext)
+    const uInfo = useSelector((state) => state.accountInfo.value)
     const[formData, setFormData] = useState({
-        pfp: route.params.pfp,
-        name: route.params.name,
-        username: route.params.username,
-        bio: route.params.bio,
-        uid: route.params.uid
+        pfp: uInfo.pfp,
+        name: uInfo.name,
+        username: uInfo.username,
+        bio: uInfo.bio
     })
-    const[characterCount, setCharacterCount] = useState(route.params.bio.length)
+    const[characterCount, setCharacterCount] = useState(uInfo.bio.length)
     const pfpObject = useRef([])
+    const dispatch = useDispatch()
     
+
     async function pickProfilePicture(){
         await ImagePicker.requestMediaLibraryPermissionsAsync() // this only asks if there are no access privileges
 
@@ -54,14 +60,16 @@ export default function EditProfile({route}){
         data.append("username", formData.username)
         data.append("bio", formData.bio)
         
+        let newUri = ""
         if(pfpObject.current.length !== 0){
             const info = pfpObject.current[0]
             const extension = info.mimeType.split("/")[1]
             data.append("media", {
-                name: `${formData.uid}_pfp${Date.now()}.jpg`, // Forced all images to be jpg to allow refresh of pfp in 
+                name: `${selfUid}_pfp${Date.now()}.jpg`, // Forced all images to be jpg to allow refresh of pfp in 
                 type: info.type,
                 uri: Platform.OS === "android" ? info.uri : info.uri.replace("file://", "")
             })
+            newUri = Platform.OS === "android" ? info.uri : info.uri.replace("file://", "")
         }
        
 
@@ -76,13 +84,15 @@ export default function EditProfile({route}){
         })
 
         if(response.status === 200){
-            navigation.navigate("Profile", {uid: route.params.uid})
+            if(pfpObject.current.length !== 0){
+                dispatch(setUserInfo({...formData, pfp:newUri}))
+            }
+            else{
+                dispatch(setUserInfo({...formData}))
+            }
+            navigation.goBack()
         }
     }
-
-    useEffect(() =>{
-        
-    }, [])
 
     return(
         <ScrollView style={styles.container} keyboardDismissMode="on-drag">

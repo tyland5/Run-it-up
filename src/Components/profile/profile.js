@@ -8,6 +8,7 @@ import Post from "../post/post";
 import { useNavigation } from "@react-navigation/native";
 import { AuthContext } from "../login/authContext";
 import PostList from "../post/postList";
+import { useSelector } from "react-redux";
 
 const envVariables = require('../../../envVariables.json');
 
@@ -18,6 +19,7 @@ export default function Profile({route}){
     const [isFollowing, setIsFollowing] = useState(false)
     const [showHeader, setShowHeader] = useState(true);
     const [profileInfo, setProfileInfo] = useState({});
+    const selfProfileInfo = useSelector((state) => state.accountInfo.value)
     const [restrictBio, setRestrictBio] = useState(false);
     const [showLess, setShowLess] = useState(false);
     const [isSelf, setIsSelf] = useState(false)
@@ -32,19 +34,13 @@ export default function Profile({route}){
     const index = React.useMemo( () => 0, []);
 
     useEffect(() =>{
-        const unsubscribe = navigation.addListener('focus', () => {
-            // do something
-            getProfileInfo();
-            console.log("rendering for first time")
-          });
-      
-        return unsubscribe;
+        getProfileInfo();
+        console.log("rendering for first time")
     }, [])
 
     useEffect(()=>{
         console.log("rerendering")
-    }
-    )
+    })
 
     const getProfileInfo = async () =>{
         const res = await fetch(envVariables.serverURL + "/user/getUserInfo?" + new URLSearchParams({uid: route.params.uid}));
@@ -117,16 +113,15 @@ export default function Profile({route}){
         <>
         <View style={styles.topSection}>
             <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: [profileInfo.pfp], index: 0})}>
-            <Image style={[styles.pfp, {borderRadius:pfpBorderRadius, height:pfpBorderRadius}]} source={{uri: profileInfo.pfp}}/>
+            <Image style={[styles.pfp, {borderRadius:pfpBorderRadius, height:pfpBorderRadius}]} source={isSelf ?{uri: selfProfileInfo.pfp} : {uri: profileInfo.pfp}}/>
             </TouchableWithoutFeedback>
             <View style={styles.identification}>
-                <StyledText bold>{profileInfo.name}</StyledText>
-                <StyledText>@{profileInfo.username}</StyledText>
+                <StyledText bold>{isSelf ? selfProfileInfo.name : profileInfo.name}</StyledText>
+                <StyledText>@{isSelf ? selfProfileInfo.username : profileInfo.username}</StyledText>
                 <View style={{height:vs(10)}}></View>
 
                 {isSelf ? 
-                    <StyledButton bgColor="#3b3b3b" borderWidth={ms(2)} onPress={() => {navigation.navigate("EditProfile", 
-                        {pfp: profileInfo.pfp, name: profileInfo.name, username: profileInfo.username, bio: profileInfo.bio, uid: profileInfo.uid})}}>
+                    <StyledButton bgColor="#3b3b3b" borderWidth={ms(2)} onPress={() => {navigation.navigate("EditProfile")}}>
                         <StyledText bold>Edit Profile</StyledText>
                     </StyledButton> 
                     :
@@ -152,7 +147,7 @@ export default function Profile({route}){
                     setRestrictBio(true)
                 }
             }}
-            numberOfLines={restrictBio ? 3 : 0}>{profileInfo.bio}</StyledText>
+            numberOfLines={restrictBio ? 3 : 0}>{isSelf ? selfProfileInfo.bio : profileInfo.bio}</StyledText>
 
             <View style={{marginVertical:vs(5)}}>
             {restrictBio && !showLess && 

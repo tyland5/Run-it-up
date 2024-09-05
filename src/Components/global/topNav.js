@@ -7,33 +7,14 @@ import { StyledText } from './styledComponents';
 import { hs, vs, ms } from './responsiveScaling';
 import { useEffect, useState, useContext } from 'react';
 import { AuthContext } from '../login/authContext';
+import { useSelector } from 'react-redux'
 
 const envVariables = require('../../../envVariables.json');
 
 export default function TopNav({hasBackArrow = false, title = "", hasSettings = false}){
     const navigation = useNavigation()
     const {selfUid} = useContext(AuthContext) 
-    const [pfp, setPfp] = useState('')
-
-    // TODO: I dont like that we fetch pfp everytime we reach home. need to somehow detect that we came from profile
-    // Not terrible rendering wise thanks to expo-image
-
-    useEffect(()=>{
-        const unsubscribe = navigation.addListener('focus', () => {
-            if((title === "")){
-                //setImageKey(Date.now())
-                getPfp()
-            }
-          });
-      
-        return unsubscribe;
-    },[])
-
-    async function getPfp(){
-        const resp = await fetch(envVariables.serverURL + "/user/getUserPfp")
-        const respJson = await resp.json()
-        setPfp(respJson.res[0].pfp)
-    }
+    const pfp = useSelector((state) => state.accountInfo.value.pfp)
 
     return(
         <>
@@ -60,7 +41,7 @@ export default function TopNav({hasBackArrow = false, title = "", hasSettings = 
         <View style= {styles.iconContainer}>
             <Ionicons name="notifications" size= {ms(30)} color ={"white"} />
             <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:selfUid})}>
-                {pfp && <Image style={{width:ms(30), height: ms(30), borderRadius:ms(30)}} source={{uri:pfp}} onLoad={() => console.log("rendered pfp nav bar")}></Image>}
+                {pfp && <Image style={{width:ms(30), height: ms(30), borderRadius:ms(30)}} source={{uri:pfp}}></Image>}
             </TouchableWithoutFeedback>
         </View>
         </View>}

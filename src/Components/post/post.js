@@ -8,7 +8,7 @@ import { hs, vs, ms } from '../global/responsiveScaling';
 import React from 'react';
 import { AuthContext } from '../login/authContext';
 import { useSelector, useDispatch } from 'react-redux'
-import { likePost, unlikePost } from './likedPostsSlice'
+import { likePost, unlikePost } from './likedPostsStore'
 
 const envVariables = require('../../../envVariables.json');
 
@@ -165,10 +165,11 @@ const Post = memo(function Post({data}){
             <FlatList
                 data={uris}
                 horizontal={true}
+                scrollEnabled={uris.length > 1 ? true : false}
                 renderItem={({item, index})=>(
                     <>
                     <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: uris, index: index})}>
-                        <Image style={uris.length === 1 ? [styles.imageStyle, {width:width * .9}] : [styles.imageStyle, {width:width * .9 *.9}]} source={{uri: item}}/>
+                        <Image style={uris.length === 1 ? [styles.imageStyle, {width:width }] : [styles.imageStyle, {width:width * .9 *.9}]} source={{uri: item}}/>
                     </TouchableWithoutFeedback>
                     </>
                 )}
@@ -188,7 +189,13 @@ const Post = memo(function Post({data}){
                     <StyledText small bold>{likeCount}</StyledText>
                 </View>
 
-                <Ionicons name="chatbubble-outline" size = {ms(25)} color ={"white"} />
+                <View style={styles.buttonContainer}>
+                    <TouchableWithoutFeedback onPress={()=>navigation.push("Comments", {postId: data.postId})}>
+                        <Ionicons name="chatbubble-outline" size = {ms(25)} color ={"white"} />
+                    </TouchableWithoutFeedback>
+                    <StyledText small bold>{data.commentCount}</StyledText>
+                </View>
+                
                 <Ionicons name="arrow-redo-outline" size = {ms(25)} color ={"white"} />
                 <Ionicons name="bookmark-outline" size = {ms(25)} color ={"white"} />
             </View>
@@ -229,6 +236,7 @@ const styles = StyleSheet.create({
     activityBar:{
         flexDirection:'row',
         justifyContent: 'space-evenly',
+        alignItems: 'center',
         marginBottom: vs(30),
     },
     imageStyle: {

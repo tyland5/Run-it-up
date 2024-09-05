@@ -5,14 +5,25 @@ import { AuthContext } from '../login/authContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { hs, vs, ms } from '../global/responsiveScaling';
 import PostList from '../post/postList';
+import { useDispatch } from 'react-redux';
+import { setUserInfo } from '../post/likedPostsStore';
 
 const envVariables = require('../../../envVariables.json');
 
 export default function HomeFeed(){
-    const {loggedIn, setLoggedIn} = useContext(AuthContext);
-    const [posts, setPosts] = useState(null)
+    const {selfUid} = useContext(AuthContext);
     const navigation = useNavigation();
+    const dispatch = useDispatch();
     
+    useEffect(()=>{
+        // not sure if i like this option much. but this prevents refetching profile info w/ api after edit profile and get info for comment prepend
+        async function setProfileInfoRedux(){
+            const resp = await fetch(envVariables.serverURL + "/user/getBasicUserInfo?" + new URLSearchParams({uid: selfUid}));
+            const respJson = await resp.json()
+            dispatch(setUserInfo(respJson.res[0]))
+        }
+        setProfileInfoRedux()
+    }, [])
 
     return(
         <View style={styles.container}>
