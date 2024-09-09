@@ -16,6 +16,7 @@ import MediaGallery from './src/Components/post/mediaGallery';
 import TopNav from './src/Components/global/topNav';
 import Profile from './src/Components/profile/profile';
 import EditProfile from './src/Components/profile/editProfile';
+import LoadingScreen from './src/Components/login/loadingScreen';
 import FollowPage from './src/Components/profile/followPage';
 import Settings from './src/Components/profile/settings';
 import Explore from './src/Components/explore/explore';
@@ -32,6 +33,7 @@ const LoginStack = createStackNavigator();
 function LoginStackScreen() {
   return(
     <LoginStack.Navigator>
+      <LoginStack.Screen options = {{headerShown:false}} name="LoadingScreen" component={LoadingScreen}/>
       <LoginStack.Screen options = {{headerShown:false}} name="Login" component={Login}/>
       <LoginStack.Screen name="Register" component={Register}/>
       <LoginStack.Screen name="Confirmation" component={EmailConfirm}/>

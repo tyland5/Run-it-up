@@ -18,34 +18,11 @@ export default function Login(){
     const navigation = useNavigation()
 
     useEffect(()=>{
-        // check if user has existing session. if not then have them log in
-        // need to make another page and put this in there. have to render that page first instead of login since logged in user sees login page
-        checkIfLoggedIn()
     },[])
 
-    const checkIfLoggedIn = async() =>{
-        const resp = await fetch(envVariables.serverURL + "/login/checkIfLoggedIn")
-        const response = await resp.json()
-        
-        if(response.status !== 401){
-            try{    
-                const selfUid = await AsyncStorage.getItem('uid')
-                const csrfToken = await AsyncStorage.getItem('csrf-token')
-
-                setSelfUid(parseInt(selfUid))
-                setCsrfToken(csrfToken)
-                setLoggedIn(true)
-            }
-            catch {
-                // no valid uid or csrf token to be recovered from storage
-            }
-        }
-    
-    }
 
     const checkCredentials = async() => {
 
-        
         const resp = await fetch(envVariables.serverURL +"/login/checkCredentials", {
             method: "POST",
             headers: {
