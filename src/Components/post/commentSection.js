@@ -118,7 +118,11 @@ export default function CommentSection({route}){
 
     async function fetchComments(){
         const res = await fetch(envVariables.serverURL + "/post/getComments?" + new URLSearchParams({postId: route.params.postId}));
-        const jsonRes = await res.json();
+        let jsonRes = null 
+        if(res.status===200){
+            jsonRes = await res.json();
+        }
+
         setPreComments(jsonRes.res)
     }
 

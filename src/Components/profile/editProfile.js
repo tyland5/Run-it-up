@@ -6,7 +6,6 @@ import { StyledText, StyledButton, StyledTextInput } from "../global/styledCompo
 import { vs, ms, hs } from "../global/responsiveScaling";
 import styled from 'styled-components/native';
 import * as ImagePicker from 'expo-image-picker';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from 'react-redux'
 import { setUserInfo } from '../post/likedPostsStore';
@@ -29,7 +28,7 @@ const FormInput = styled(StyledTextInput)`
 export default function EditProfile({route}){
     const navigation = useNavigation()
     const pfpDimensions= Dimensions.get('window').width * .3 
-    const {selfUid} = useContext(AuthContext)
+    const {selfUid, csrfToken} = useContext(AuthContext)
     const uInfo = useSelector((state) => state.accountInfo.value)
     const[formData, setFormData] = useState({
         pfp: uInfo.pfp,
@@ -73,7 +72,6 @@ export default function EditProfile({route}){
         }
        
 
-        const csrfToken = await AsyncStorage.getItem('csrf-token');
         const response = await fetch(envVariables.serverURL +"/user/changeUserInfo", {
             method: "POST",
             headers: {

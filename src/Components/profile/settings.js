@@ -13,8 +13,8 @@ export default function Settings(){
         const response = await fetch(envVariables.serverURL + "/user/logout")
         if(response.status === 200){
             setLoggedIn(false)
-            setSelfUid(false)
-            setCsrfToken(false)
+            setSelfUid(-1)
+            setCsrfToken('')
         }
     }
     

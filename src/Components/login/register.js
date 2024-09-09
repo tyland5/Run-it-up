@@ -69,12 +69,15 @@ export default function Register(){
 
         // Check if a created account has the same username or email
         const res = await fetch(envVariables.serverURL + "/login/checkUsernameEmail?" + new URLSearchParams({email:formData.email, username: formData.username}));
+        let jsonRes = null
 
-        const jsonRes = await res.json();
-        err.usernameDup = !jsonRes.validUser
-        err.emailDup = !jsonRes.validEmail
+        if(res.status === 200){
+            const jsonRes = await res.json();
+            err.usernameDup = !jsonRes.validUser
+            err.emailDup = !jsonRes.validEmail
+        }
         
-        if(jsonRes.response === "bad" || !jsonRes.validUser || !jsonRes.validEmail){
+        if(res.response !== 200 || !jsonRes.validUser || !jsonRes.validEmail){
             numErr += 1
         }
 
@@ -83,9 +86,8 @@ export default function Register(){
             fetch(envVariables.serverURL +"/login/confirmEmail?" + new URLSearchParams({email:formData.email}))
             .then(response => response.json())
             .then(data => {
-                if(data.response === "good"){
-                    navigation.navigate("Confirmation", {generatedCode: data.confCode, accountDetails: formData})
-                }
+                navigation.navigate("Confirmation", {generatedCode: data.confCode, accountDetails: formData})
+                
             })
             
         }

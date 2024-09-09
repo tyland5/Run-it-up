@@ -33,16 +33,23 @@ export default function ForgotPassword({route}){
     async function setEmail(){
         // first check if an account with this email exists
         const res = await fetch(envVariables.serverURL + "/login/checkEmail?" + new URLSearchParams({email:formData.email}));
-        const resJson = await res.json();
+        let resJson = null;
+        if(res.status === 200){
+            resJson = await res.json();
+        }
 
-        if(resJson.response === "bad" || !resJson.validEmail){
+        if(res.status !== 200 || !resJson.validEmail){
             setShowErr({...showErr, email: true})
             return
         }
         setShowErr({...showErr, email: false})
+
         // if email is valid, get confirmation code and show change pass inputs
         const res2 = await fetch(envVariables.serverURL + "/login/confirmEmail?" + new URLSearchParams({email:formData.email}));
-        const resJson2 = await res2.json();
+        let resJson2 = null
+        if(res2.status === 200){
+            resJson2 = await res2.json();
+        }
 
         setGeneratedCode(resJson2.confCode);
         setEmailSelected(true);        

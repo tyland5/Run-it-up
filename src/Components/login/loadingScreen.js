@@ -23,17 +23,12 @@ export default function LoadingScreen(){
         const resp = await fetch(envVariables.serverURL + "/login/checkIfLoggedIn")
         
         if(resp.status !== 401){
-            try{    
-                const selfUid = await AsyncStorage.getItem('uid')
-                const csrfToken = await AsyncStorage.getItem('csrf-token')
-                setSelfUid(parseInt(selfUid))
-                setCsrfToken(csrfToken)
-                setLoggedIn(true)
-            }
-            catch {
-                // no valid uid or csrf token to be recovered from storage
-                navigation.navigate("Login")
-            }
+            const respJson = await resp.json()
+
+            setSelfUid(respJson.res.uid)
+            setCsrfToken(respJson.res.csrfToken)
+            setLoggedIn(true)
+            return
         }
 
         navigation.navigate("Login")
