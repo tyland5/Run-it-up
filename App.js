@@ -10,6 +10,7 @@ import EmailConfirm from './src/Components/login/emailConfirm';
 import ForgotPassword from './src/Components/login/forgotPassword';
 import HomeFeed from './src/Components/home/homeFeed';
 import MakePost from './src/Components/home/makePost';
+import CommentSection from './src/Components/post/commentSection';
 import ExpandedPost from './src/Components/post/expandedPost';
 import MediaGallery from './src/Components/post/mediaGallery';
 import TopNav from './src/Components/global/topNav';
@@ -17,8 +18,11 @@ import Profile from './src/Components/profile/profile';
 import EditProfile from './src/Components/profile/editProfile';
 import FollowPage from './src/Components/profile/followPage';
 import Settings from './src/Components/profile/settings';
+import Explore from './src/Components/explore/explore';
 import { useEffect, useState, useContext } from 'react';
 import { AuthContext } from './src/Components/login/authContext';
+import { Provider } from 'react-redux';
+import store from "./src/Components/post/likedPostsStore"
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {hs, vs, ms} from "./src/Components/global/responsiveScaling";
 
@@ -36,6 +40,15 @@ function LoginStackScreen() {
   )
 }
 
+const ExploreStack = createStackNavigator();
+function ExploreStackScreen(){
+  return(
+    <ExploreStack.Navigator>
+      <ExploreStack.Screen name = "ExploreHome" component={Explore}/>
+    </ExploreStack.Navigator>
+  )
+}
+
 const HomeStack = createStackNavigator();
 function HomeStackScreen() {
   return (
@@ -43,6 +56,7 @@ function HomeStackScreen() {
       <HomeStack.Screen options= {{header: () => <TopNav />}} name="Home" component={HomeFeed} />
       <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Post"/>}} name="ExpandedPost" component={ExpandedPost} />
       <HomeStack.Screen options = {{headerShown:false}} name="MakePost" component={MakePost} />
+      <HomeStack.Screen options = {{header: () => <TopNav hasBackArrow ={true} title="Comments" />}} name="Comments" component={CommentSection} />
       <LoginStack.Screen options = {{headerShown:false}} name="MediaGallery" component={MediaGallery}/>
       <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Profile" hasSettings={true}/>}} name="Profile" component={Profile} />
       <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Profile"/>}} name="FollowPage" component={FollowPage} />
@@ -65,7 +79,7 @@ function AppTabs(){
         tabBarIcon: ({color}) => (<Ionicons name="home" size= {ms(30)} color= {color}/>)
       }}/>
 
-      <Tab.Screen name="Explore" component={HomeStackScreen} 
+      <Tab.Screen name="Explore" component={ExploreStackScreen} 
       options={{tabBarShowLabel: false,
         tabBarIcon: ({color}) => (<Ionicons name="search" size= {ms(30)} color= {color}/>)
       }}/>
@@ -89,14 +103,15 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{loggedIn, setLoggedIn, selfUid, setSelfUid, csrfToken, setCsrfToken}}>
+    <Provider store={store}>
       <NavigationContainer>
         <RootStack.Navigator screenOptions={{headerShown: false}}>
-          {loggedIn ? 
-          <RootStack.Screen name= "appTabs" component={AppTabs}/> :
+          {loggedIn ? <RootStack.Screen name= "appTabs" component={AppTabs}/> :
           <RootStack.Screen name= "loginStack" component={LoginStackScreen}/>
           }
         </RootStack.Navigator>
       </NavigationContainer>
+    </Provider>
     </AuthContext.Provider>
   );
 }
