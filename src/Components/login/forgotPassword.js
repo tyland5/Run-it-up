@@ -63,12 +63,13 @@ export default function ForgotPassword({route}){
         }
 
         let errPresent = false
+        const pwRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&^])[A-Za-z\d@.#$!%*?&]{8,16}$/
 
         if(formData.confirmCode !== generatedCode){
             errs.confirmCode = true
             errPresent = true
         }
-        if(formData.password.length < 12){
+        if(!pwRegex.test(formData.password)){
             errs.password = true
             errPresent = true
         }
@@ -123,7 +124,7 @@ export default function ForgotPassword({route}){
             <StyledTextLabel>Password</StyledTextLabel>
             <StyledTextInput secureTextEntry = {true} placeholder='Password' placeholderTextColor="gray" value ={formData.password} onChangeText={(val) => setFormData({...formData, password:val})}></StyledTextInput>
             <View style= {styles.input_space}></View>
-            {showErr.password ? <StyledTextLabel error>Password must be at least 12 characters</StyledTextLabel> : <></>}
+            {showErr.password ? <StyledTextLabel error>{`At least one lowercase alphabet i.e. [a-z]\nAt least one uppercase alphabet i.e. [A-Z]\nAt least one Numeric digit i.e. [0-9]\nAt least one special character i.e. ['@', '$', '.', '#', '!', '%', '*', '?', '&', '^']\nTotal length must be in the range [8-16]`}</StyledTextLabel> : <></>}
             
             <StyledTextLabel>Confirm Password</StyledTextLabel>
             <StyledTextInput secureTextEntry = {true} placeholder='Confirm Password' placeholderTextColor="gray" value ={formData.confirmPassword} onChangeText={(val) => setFormData({...formData, confirmPassword:val})}></StyledTextInput>

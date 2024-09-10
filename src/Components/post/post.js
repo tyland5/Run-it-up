@@ -40,7 +40,7 @@ const Post = memo(function Post({data}){
     }, [])
 
     useEffect(()=>{
-        console.log("rerendering from post 22222222")
+        console.log("rendering from post 22222222")
     }, [])
 
     useEffect(()=>{
@@ -113,7 +113,7 @@ const Post = memo(function Post({data}){
         Alert.alert('Delete Post', 'Are you sure you want to delete this post?', [
           {
             text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed'),
+            onPress: () => {},
             style: 'cancel',
           },
           {text: 'Delete', style:'destructive', onPress: () => deletePost()},

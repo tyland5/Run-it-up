@@ -3,15 +3,19 @@ import { StyleSheet, View, TouchableWithoutFeedback} from 'react-native';
 import { hs,vs,ms } from '../global/responsiveScaling';
 import { StyledText } from '../global/styledComponents';
 import { AuthContext } from '../login/authContext';
+import { useDispatch } from 'react-redux';
+import { clearLikes } from '../post/likedPostsStore';
 
 const envVariables = require('../../../envVariables.json');
 
 export default function Settings(){
     const {setLoggedIn, setSelfUid, setCsrfToken} = useContext(AuthContext)
+    const dispatch = useDispatch()
 
     async function logout(){
         const response = await fetch(envVariables.serverURL + "/user/logout")
         if(response.status === 200){
+            dispatch(clearLikes()) // likes messed up since i guess it survives log outs to different account
             setLoggedIn(false)
             setSelfUid(-1)
             setCsrfToken('')

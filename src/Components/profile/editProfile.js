@@ -10,6 +10,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from 'react-redux'
 import { setUserInfo } from '../post/likedPostsStore';
 import { AuthContext } from "../login/authContext";
+import { checkIfValidChar } from "../../functions/global";
 
 const envVariables = require('../../../envVariables.json');
 
@@ -48,6 +49,12 @@ export default function EditProfile({route}){
         if(!result.canceled){
             setFormData({ ...formData, pfp:result.assets[0].uri})
             pfpObject.current = result.assets
+        }
+    }
+
+    handleUsername = (val) =>{
+        if(checkIfValidChar(val)){
+            setFormData({...formData, username:val.toLowerCase()})
         }
     }
 
@@ -117,7 +124,7 @@ export default function EditProfile({route}){
                     <FormLabel bold>Username</FormLabel>
                 </View>
                 <View style={styles.input}>
-                    <FormInput keyboardType={Platform.OS === 'ios' ? 'ascii-capable' : 'visible-password'} placeholder='Username' placeholderTextColor="gray" value ={formData.username} onChangeText={(val) => setFormData({...formData, username:val.toLowerCase()})}></FormInput>
+                    <FormInput keyboardType={Platform.OS === 'ios' ? 'ascii-capable' : 'visible-password'} placeholder='Username' placeholderTextColor="gray" value ={formData.username} onChangeText={(val) => handleUsername(val)}></FormInput>
                     {formData.username.length > 20 && <StyledText error>20 characters or less</StyledText>}
                     {formData.username.length === 0 && <StyledText error>Username must be nonempty</StyledText>}
                 </View>

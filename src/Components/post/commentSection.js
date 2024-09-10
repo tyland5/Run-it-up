@@ -22,7 +22,7 @@ function Comment({uid, commentId, pfp, name, username, comment}){
         Alert.alert('Delete Comment', 'Are you sure you want to delete this comment?', [
           {
             text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed'),
+            onPress: () => {},
             style: 'cancel',
           },
           {text: 'Delete', style:'destructive', onPress: () => deleteComment()},

@@ -112,7 +112,7 @@ export default function Profile({route}){
         {showHeader && 
         <>
         <View style={styles.topSection}>
-            <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: [profileInfo.pfp], index: 0})}>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: isSelf ? [selfProfileInfo.pfp] : [profileInfo.pfp], index: 0})}>
             <Image style={[styles.pfp, {borderRadius:pfpBorderRadius, height:pfpBorderRadius}]} source={isSelf ?{uri: selfProfileInfo.pfp} : {uri: profileInfo.pfp}}/>
             </TouchableWithoutFeedback>
             <View style={styles.identification}>

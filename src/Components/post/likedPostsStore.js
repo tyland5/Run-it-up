@@ -14,10 +14,13 @@ const counterSlice = createSlice({
       likePost: (state, action) => {
         state.value[action.payload[0]] = action.payload[1] // add post id to set of liked posts
       },
+      clearLikes: (state) => {
+        state.value = {}
+      }
     },
   })
   
-export const { unlikePost, likePost } = counterSlice.actions
+export const { unlikePost, likePost, clearLikes } = counterSlice.actions
 
 const accountInfoSlice = createSlice({
   name: 'pfp',
