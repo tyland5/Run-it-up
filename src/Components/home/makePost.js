@@ -79,6 +79,9 @@ export default function MakePost({media}){
             setLoggedIn(false)
             return
         }
+        else if(response.status === 500){
+            return
+        }
 
         navigation.goBack();
     }

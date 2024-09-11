@@ -29,7 +29,7 @@ const FormInput = styled(StyledTextInput)`
 export default function EditProfile({route}){
     const navigation = useNavigation()
     const pfpDimensions= Dimensions.get('window').width * .3 
-    const {selfUid, csrfToken} = useContext(AuthContext)
+    const {selfUid, csrfToken, setLoggedIn} = useContext(AuthContext)
     const uInfo = useSelector((state) => state.accountInfo.value)
     const[formData, setFormData] = useState({
         pfp: uInfo.pfp,
@@ -96,6 +96,9 @@ export default function EditProfile({route}){
                 dispatch(setUserInfo({...formData}))
             }
             navigation.goBack()
+        }
+        else if (response.status === 401){
+            setLoggedIn(false)
         }
     }
 

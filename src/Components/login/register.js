@@ -89,13 +89,12 @@ export default function Register(){
         }
 
         if(numErr === 0){
-            fetch(envVariables.serverURL +"/login/confirmEmail?" + new URLSearchParams({email:formData.email}))
-            .then(response => response.json())
-            .then(data => {
+            const res = await fetch(envVariables.serverURL +"/login/confirmEmail?" + new URLSearchParams({email:formData.email}))
+            if(res.status === 200){
+                const data = res.json()
                 navigation.navigate("Confirmation", {generatedCode: data.confCode, accountDetails: formData})
-                
-            })
-            
+            }
+            // nothing for 500 response   
         }
 
         setFormErr(err)

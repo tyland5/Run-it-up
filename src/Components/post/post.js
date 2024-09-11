@@ -29,7 +29,7 @@ const Post = memo(function Post({data}){
         }
         return data.likeCount})
     const dispatch = useDispatch()
-    const {selfUid, csrfToken} = useContext(AuthContext)
+    const {selfUid, csrfToken, setLoggedIn} = useContext(AuthContext)
     const navigation = useNavigation();
     const { width, height } = Dimensions.get('window');
     const uris =  useMemo(() => {
@@ -88,6 +88,9 @@ const Post = memo(function Post({data}){
                 dispatch(likePost(payload))
             }
         }
+        else if(response.status === 401){
+            setLoggedIn(false)
+        }
     }
 
     // we set state to get rid of render in the feed without changing data and rerendering the entire list
@@ -106,6 +109,9 @@ const Post = memo(function Post({data}){
 
         if(response.status===200){
             setIsDeleted(true)
+        }
+        else if(response.status === 401){
+            setLoggedIn(false)
         }
     }
 

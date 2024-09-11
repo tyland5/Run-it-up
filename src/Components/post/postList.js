@@ -1,9 +1,9 @@
-import React, { memo, useCallback, useState, useEffect, useMemo} from 'react';
+import React, { memo, useCallback, useState, useEffect, useMemo, useContext} from 'react';
 import { useSelector, useDispatch } from 'react-redux'
 import { likePost, unlikePost } from './likedPostsStore'
 import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import { vs, hs, ms } from '../global/responsiveScaling';
-
+import { AuthContext } from '../login/authContext';
 import Post from './post';
 
 const envVariables = require('../../../envVariables.json');
@@ -11,6 +11,7 @@ const envVariables = require('../../../envVariables.json');
 export default function PostList({onScroll = ()=>{}, filters = {}, refreshEnabled = false}){
     const [prePosts, setPrePosts] = useState([])
     const [refreshing, setRefreshing] = React.useState(false);
+    const {setLoggedIn} = useContext(AuthContext)
     const dispatch = useDispatch()
 
     useEffect(()=>{
@@ -33,6 +34,15 @@ export default function PostList({onScroll = ()=>{}, filters = {}, refreshEnable
 
     async function getPosts(){
         const thePosts = await fetch(envVariables.serverURL + "/post/getPosts?" + new URLSearchParams(filters));
+        
+        if(thePosts.status === 401){
+            setLoggedIn(false)
+            return
+        }
+        else if(thePosts.status === 500){
+            return
+        }
+
         const data = await thePosts.json()
         const fetchedPosts = data.res
         setPrePosts(fetchedPosts)

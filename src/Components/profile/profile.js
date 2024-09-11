@@ -23,7 +23,7 @@ export default function Profile({route}){
     const [restrictBio, setRestrictBio] = useState(false);
     const [showLess, setShowLess] = useState(false);
     const [isSelf, setIsSelf] = useState(false)
-    const {selfUid, csrfToken} = useContext(AuthContext)
+    const {selfUid, csrfToken, setLoggedIn} = useContext(AuthContext)
     const navigation = useNavigation();
 
     // trying to prevent react native tab from rerendering on when changin state (following button)
@@ -44,6 +44,16 @@ export default function Profile({route}){
 
     const getProfileInfo = async () =>{
         const res = await fetch(envVariables.serverURL + "/user/getUserInfo?" + new URLSearchParams({uid: route.params.uid}));
+        
+        if(res.status === 401){
+            setLoggedIn(false)
+            return
+        }
+        else if(res.status === 500){
+            return
+        }
+
+        // valid 200 response
         const jsonRes = await res.json();
         
         if(selfUid === route.params.uid){
@@ -88,6 +98,9 @@ export default function Profile({route}){
         if(res.status === 200){
             setIsFollowing(true)
         }
+        else if(res.status === 401){
+            setLoggedIn(false)
+        }
     }
 
     const unfollowUser = async() =>{
@@ -103,6 +116,9 @@ export default function Profile({route}){
 
         if(res.status === 200){
             setIsFollowing(false)
+        }
+        else if(res.status === 401){
+            setLoggedIn(false)
         }
     }
 

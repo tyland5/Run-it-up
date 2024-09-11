@@ -37,8 +37,11 @@ export default function ForgotPassword({route}){
         if(res.status === 200){
             resJson = await res.json();
         }
+        else{
+            return
+        }
 
-        if(res.status !== 200 || !resJson.validEmail){
+        if(!resJson.validEmail){
             setShowErr({...showErr, email: true})
             return
         }
@@ -46,13 +49,12 @@ export default function ForgotPassword({route}){
 
         // if email is valid, get confirmation code and show change pass inputs
         const res2 = await fetch(envVariables.serverURL + "/login/confirmEmail?" + new URLSearchParams({email:formData.email}));
-        let resJson2 = null
         if(res2.status === 200){
-            resJson2 = await res2.json();
-        }
+            const resJson2 = await res2.json();
 
-        setGeneratedCode(resJson2.confCode);
-        setEmailSelected(true);        
+            setGeneratedCode(resJson2.confCode);
+            setEmailSelected(true);
+        }        
     }
 
     async function handleConfirm(){
@@ -90,7 +92,9 @@ export default function ForgotPassword({route}){
                 }) // Send the data in JSON format
               })
 
-            navigation.navigate("Login")
+            if(res.status === 200){
+                navigation.navigate("Login")
+            }
         }
     }
 

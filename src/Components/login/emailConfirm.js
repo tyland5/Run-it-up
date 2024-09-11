@@ -35,6 +35,7 @@ export default function EmailConfirm({route}){
             if(res.status === 200){
                 navigation.navigate("Login")
             }
+            // 500 response do nothing
         }
         else{
             setShowErr(true)

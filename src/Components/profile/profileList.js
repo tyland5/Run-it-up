@@ -12,7 +12,7 @@ const envVariables = require('../../../envVariables.json');
 
 // dont need to worry about memo here since changing state would only affect this component. state is not part of the bigger profile list
 function ProfileEntry({profile}){
-    const {selfUid, csrfToken} = useContext(AuthContext);
+    const {selfUid, csrfToken, setLoggedIn} = useContext(AuthContext);
     const [isFollowing, setIsFollowing] = useState(profile.hasOwnProperty('mutual') && profile.mutual == null && profile.uid != selfUid ? false : true)
     const navigation = useNavigation();
     
@@ -34,6 +34,9 @@ function ProfileEntry({profile}){
 
         if(res.status === 200){
             setIsFollowing(true)
+        }
+        else if(res.status === 401){
+            setLoggedIn(false)
         }
     }
 

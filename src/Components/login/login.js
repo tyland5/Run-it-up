@@ -46,7 +46,9 @@ export default function Login(){
             setLoggedIn(true)
         }
         else{
-            setCredentialErr(true)
+            if(resp.status === 401){
+                setCredentialErr(true)
+            }
         }
         
         // could render a loading screen here
