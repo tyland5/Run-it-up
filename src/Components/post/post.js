@@ -130,10 +130,10 @@ const Post = memo(function Post({data}){
             {!isDeleted && 
             <>
             <View style={styles.top_section}>
-                <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:data.uid})}>
+                <TouchableWithoutFeedback onPress={() => navigation.push("Profile", {uid:data.uid})}>
                     <Image style={styles.pfp} source={{uri:data.pfp}}/> 
                 </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:data.uid})}>
+                <TouchableWithoutFeedback onPress={() => navigation.push("Profile", {uid:data.uid})}>
                     <StyledText bold >{data.name}</StyledText>
                 </TouchableWithoutFeedback>
 
@@ -174,7 +174,7 @@ const Post = memo(function Post({data}){
                 scrollEnabled={uris.length > 1 ? true : false}
                 renderItem={({item, index})=>(
                     <>
-                    <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: uris, index: index})}>
+                    <TouchableWithoutFeedback onPress={() => navigation.push("MediaGallery" , {media: uris, index: index})}>
                         <Image style={uris.length === 1 ? [styles.imageStyle, {width:width }] : [styles.imageStyle, {width:width * .9 *.9}]} source={{uri: item}}/>
                     </TouchableWithoutFeedback>
                     </>
