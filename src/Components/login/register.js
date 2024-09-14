@@ -5,6 +5,7 @@ import { useHeaderHeight } from '@react-navigation/elements'
 import styled from 'styled-components';
 import { StyledButton, StyledText, StyledTextInput, StyledTextLabel } from '../global/styledComponents';
 import { vs, hs, ms } from '../global/responsiveScaling';
+import { checkIfValidChar } from '../../functions/global';
 
 const envVariables = require('../../../envVariables.json');
 
@@ -32,6 +33,11 @@ export default function Register(){
     const navigation = useNavigation()
     const screenHeight = Dimensions.get('window').height;
 
+    handleUsername = (val) =>{
+        if(checkIfValidChar(val)){
+            setFormData({...formData, username:val.toLowerCase()})
+        }
+    }
 
     async function handleRegister(){
         let numErr = 0
@@ -44,6 +50,7 @@ export default function Register(){
             usernameDup: false,
             emailDup: false
         }
+        const pwRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&^])[A-Za-z\d@.#$!%*?&]{8,16}$/
         
         if(formData.username.length < 1){
             numErr += 1
@@ -53,7 +60,7 @@ export default function Register(){
             err.email = true
             numErr += 1
         }
-        if(formData.password.length < 12){
+        if(!pwRegex.test(formData.password)){
             numErr += 1
             err.password = true
         }
@@ -69,25 +76,25 @@ export default function Register(){
 
         // Check if a created account has the same username or email
         const res = await fetch(envVariables.serverURL + "/login/checkUsernameEmail?" + new URLSearchParams({email:formData.email, username: formData.username}));
+        let jsonRes = null
 
-        const jsonRes = await res.json();
-        err.usernameDup = !jsonRes.validUser
-        err.emailDup = !jsonRes.validEmail
+        if(res.status === 200){
+            jsonRes = await res.json();
+            err.usernameDup = !jsonRes.validUser
+            err.emailDup = !jsonRes.validEmail
+        }
         
-        if(jsonRes.response === "bad" || !jsonRes.validUser || !jsonRes.validEmail){
+        if(res.status !== 200 || !jsonRes.validUser || !jsonRes.validEmail){
             numErr += 1
         }
 
         if(numErr === 0){
-            
-            fetch(envVariables.serverURL +"/login/confirmEmail?" + new URLSearchParams({email:formData.email}))
-            .then(response => response.json())
-            .then(data => {
-                if(data.response === "good"){
-                    navigation.navigate("Confirmation", {generatedCode: data.confCode, accountDetails: formData})
-                }
-            })
-            
+            const res = await fetch(envVariables.serverURL +"/login/confirmEmail?" + new URLSearchParams({email:formData.email}))
+            if(res.status === 200){
+                const data = res.json()
+                navigation.navigate("Confirmation", {generatedCode: data.confCode, accountDetails: formData})
+            }
+            // nothing for 500 response   
         }
 
         setFormErr(err)
@@ -103,25 +110,25 @@ export default function Register(){
                 <View style={{height: vs(30)}}></View>
                 
                 <StyledTextLabel>Username <StyledText color="red">*</StyledText> </StyledTextLabel>
-                <StyledTextInput placeholder='Username' placeholderTextColor="gray" value={formData.username} onChangeText={(val) => setFormData({...formData, username:val.toLowerCase()})}></StyledTextInput>
+                <StyledTextInput keyboardType={Platform.OS === 'ios' ? 'ascii-capable' : 'visible-password'} maxLength={20} placeholder='Username' placeholderTextColor="gray" value={formData.username} onChangeText={(val) => handleUsername(val)}></StyledTextInput>
                 {formErr.username ? <StyledTextLabel error >Please enter a non empty username</StyledTextLabel> : <></>}
                 {formErr.usernameDup ? <StyledTextLabel error>This username is already taken</StyledTextLabel> : <></>}
                 <View style={{height: vs(15)}}></View>
 
                 <StyledTextLabel>Name <StyledText color="red">*</StyledText> </StyledTextLabel>
-                <StyledTextInput placeholder='Name' placeholderTextColor="gray" value={formData.name} onChangeText={(val) => setFormData({...formData, name:val})}></StyledTextInput>
+                <StyledTextInput keyboardType={Platform.OS === 'ios' ? 'ascii-capable' : 'visible-password'} maxLength={40} placeholder='Name' placeholderTextColor="gray" value={formData.name} onChangeText={(val) => setFormData({...formData, name:val})}></StyledTextInput>
                 {formErr.name ? <StyledTextLabel error>Please enter a non empty name</StyledTextLabel> : <></>}
                 <View style={{height: vs(15)}}></View>
 
                 <StyledTextLabel>Email <StyledText color="red">*</StyledText> </StyledTextLabel>
-                <StyledTextInput placeholder='Email' placeholderTextColor="gray" value={formData.email} onChangeText={(val) => setFormData({...formData, email:val.toLowerCase()})}></StyledTextInput>
+                <StyledTextInput keyboardType={Platform.OS === 'ios' ? 'ascii-capable' : 'visible-password'} placeholder='Email' placeholderTextColor="gray" value={formData.email} onChangeText={(val) => setFormData({...formData, email:val.toLowerCase()})}></StyledTextInput>
                 {formErr.email ? <StyledTextLabel error>Please enter a valid email</StyledTextLabel> : <></>}
                 {formErr.emailDup ? <StyledTextLabel error>This email is already in use</StyledTextLabel> : <></>}
                 <View style={{height: vs(15)}}></View>
 
                 <StyledTextLabel>Password <StyledText color="red">*</StyledText> </StyledTextLabel>
                 <StyledTextInput secureTextEntry = {true} placeholder='Password' placeholderTextColor="gray" value={formData.password} onChangeText={(val) => setFormData({...formData, password:val})}></StyledTextInput>
-                {formErr.password ? <StyledTextLabel error>Please enter a password of at least 12 characters</StyledTextLabel> : <></>}
+                {formErr.password ? <StyledTextLabel error>{`At least one lowercase alphabet i.e. [a-z]\nAt least one uppercase alphabet i.e. [A-Z]\nAt least one Numeric digit i.e. [0-9]\nAt least one special character i.e. ['@', '$', '.', '#', '!', '%', '*', '?', '&', '^']\nTotal length must be in the range [8-16]`}</StyledTextLabel> : <></>}
                 <View style={{height: vs(15)}}></View>
 
                 <StyledTextLabel>Confirm Password <StyledText color="red">*</StyledText> </StyledTextLabel>

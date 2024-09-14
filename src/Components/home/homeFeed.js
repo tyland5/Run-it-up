@@ -11,7 +11,7 @@ import { setUserInfo } from '../post/likedPostsStore';
 const envVariables = require('../../../envVariables.json');
 
 export default function HomeFeed(){
-    const {selfUid} = useContext(AuthContext);
+    const {selfUid, setLoggedIn} = useContext(AuthContext);
     const navigation = useNavigation();
     const dispatch = useDispatch();
     
@@ -19,8 +19,13 @@ export default function HomeFeed(){
         // not sure if i like this option much. but this prevents refetching profile info w/ api after edit profile and get info for comment prepend
         async function setProfileInfoRedux(){
             const resp = await fetch(envVariables.serverURL + "/user/getBasicUserInfo?" + new URLSearchParams({uid: selfUid}));
-            const respJson = await resp.json()
-            dispatch(setUserInfo(respJson.res[0]))
+            if(resp.status === 200){
+                const respJson = await resp.json()
+                dispatch(setUserInfo(respJson.res[0]))
+            }
+            else if(resp.status === 401){
+                setLoggedIn(false)
+            }
         }
         setProfileInfoRedux()
     }, [])

@@ -32,10 +32,10 @@ export default function EmailConfirm({route}){
                 }),
             });
     
-            const jsonRes = await res.json();
-            if(jsonRes.response === "good"){
+            if(res.status === 200){
                 navigation.navigate("Login")
             }
+            // 500 response do nothing
         }
         else{
             setShowErr(true)

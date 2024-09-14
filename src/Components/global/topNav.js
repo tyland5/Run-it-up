@@ -15,7 +15,6 @@ export default function TopNav({hasBackArrow = false, title = "", hasSettings = 
     const navigation = useNavigation()
     const {selfUid} = useContext(AuthContext) 
     const pfp = useSelector((state) => state.accountInfo.value.pfp)
-
     return(
         <>
         {hasBackArrow ?     
@@ -41,7 +40,7 @@ export default function TopNav({hasBackArrow = false, title = "", hasSettings = 
         <View style= {styles.iconContainer}>
             <Ionicons name="notifications" size= {ms(30)} color ={"white"} />
             <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:selfUid})}>
-                {pfp && <Image style={{width:ms(30), height: ms(30), borderRadius:ms(30)}} source={{uri:pfp}}></Image>}
+                <Image style={{width:ms(30), height: ms(30), borderRadius:ms(30)}} source={{uri:pfp}}></Image>
             </TouchableWithoutFeedback>
         </View>
         </View>}

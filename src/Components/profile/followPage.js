@@ -1,12 +1,14 @@
-import React, { useEffect, useCallback, useMemo, useState } from "react";
+import React, { useEffect, useCallback, useMemo, useState, useContext } from "react";
 import { FlatList, StyleSheet, View} from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import ProfileList from "./profileList";
+import { AuthContext } from "../login/authContext";
 
 const envVariables = require('../../../envVariables.json');
 
 export default function FollowPage({route}){
     const [followData, setFollowData] = useState([])
+    const {setLoggedIn} = useContext(AuthContext)
 
     useEffect(()=>{
         // here i would have to fetch the followers and following
@@ -15,9 +17,19 @@ export default function FollowPage({route}){
     
     const getFollowInfo = async () =>{
         const res = await fetch(envVariables.serverURL + "/user/getFollowersFollowing?" + new URLSearchParams({uid: route.params.uid}));
-        const jsonRes = await res.json();
         
-        setFollowData(jsonRes.res)
+        if(res.status === 200){
+            const jsonRes = await res.json();
+        
+            setFollowData(jsonRes.res)
+            return
+        }
+        else if(res.status === 401){
+            setLoggedIn(false)
+        }
+        
+        // 500 error, show no data
+        setFollowData([[],[]])
     }
 
 

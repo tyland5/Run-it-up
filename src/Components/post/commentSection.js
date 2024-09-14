@@ -16,13 +16,13 @@ function Comment({uid, commentId, pfp, name, username, comment}){
     const [restrictComment, setRestrictComment] = useState(false)
     const [showComment, setShowComment] = useState(true)
     const [showLess, setShowLess] = useState(false)
-    const {selfUid, csrfToken} = useContext(AuthContext)
+    const {selfUid, csrfToken, setLoggedIn} = useContext(AuthContext)
 
     const createDeleteCommentAlert = () =>
         Alert.alert('Delete Comment', 'Are you sure you want to delete this comment?', [
           {
             text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed'),
+            onPress: () => {},
             style: 'cancel',
           },
           {text: 'Delete', style:'destructive', onPress: () => deleteComment()},
@@ -43,6 +43,9 @@ function Comment({uid, commentId, pfp, name, username, comment}){
 
         if(response.status === 200){
             setShowComment(false)
+        }
+        else if(response.status === 401){
+            setLoggedIn(false)
         }
     }
 
@@ -107,7 +110,7 @@ export default function CommentSection({route}){
     const height = useHeaderHeight()
     const [newComment, setNewComment] = useState('')
     const [preComments, setPreComments] = useState('')
-    const {csrfToken, selfUid} = useContext(AuthContext)
+    const {csrfToken, selfUid, setLoggedIn} = useContext(AuthContext)
     const comments = useMemo(()=> { return preComments}, [preComments])
     const uInfo = useSelector((state) => state.accountInfo.value)
     
@@ -118,7 +121,18 @@ export default function CommentSection({route}){
 
     async function fetchComments(){
         const res = await fetch(envVariables.serverURL + "/post/getComments?" + new URLSearchParams({postId: route.params.postId}));
+        if(res.status === 401){
+            setLoggedIn(false)
+            return
+        }
+        else if(res.status === 500){
+            return
+        }
+
+        
         const jsonRes = await res.json();
+        
+
         setPreComments(jsonRes.res)
     }
 
@@ -134,13 +148,16 @@ export default function CommentSection({route}){
                 postId: route.params.postId,
                 comment: newComment
             }),
-        }) // might need to return the new comment id for when i implement delete comment feature
+        })
 
         if(response.status === 200){
             const respJson = await response.json()
             
             setPreComments([{uid: selfUid, comment_id: respJson.res, pfp: uInfo.pfp, name:uInfo.name, username: uInfo.username, comment:newComment}, ...preComments])
             setNewComment("")
+        }
+        else if(response.status === 401){
+            setLoggedIn(false)
         }
     }
 

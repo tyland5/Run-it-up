@@ -6,11 +6,11 @@ import { StyledText, StyledButton, StyledTextInput } from "../global/styledCompo
 import { vs, ms, hs } from "../global/responsiveScaling";
 import styled from 'styled-components/native';
 import * as ImagePicker from 'expo-image-picker';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from 'react-redux'
 import { setUserInfo } from '../post/likedPostsStore';
 import { AuthContext } from "../login/authContext";
+import { checkIfValidChar } from "../../functions/global";
 
 const envVariables = require('../../../envVariables.json');
 
@@ -29,7 +29,7 @@ const FormInput = styled(StyledTextInput)`
 export default function EditProfile({route}){
     const navigation = useNavigation()
     const pfpDimensions= Dimensions.get('window').width * .3 
-    const {selfUid} = useContext(AuthContext)
+    const {selfUid, csrfToken, setLoggedIn} = useContext(AuthContext)
     const uInfo = useSelector((state) => state.accountInfo.value)
     const[formData, setFormData] = useState({
         pfp: uInfo.pfp,
@@ -49,6 +49,12 @@ export default function EditProfile({route}){
         if(!result.canceled){
             setFormData({ ...formData, pfp:result.assets[0].uri})
             pfpObject.current = result.assets
+        }
+    }
+
+    handleUsername = (val) =>{
+        if(checkIfValidChar(val)){
+            setFormData({...formData, username:val.toLowerCase()})
         }
     }
 
@@ -73,7 +79,6 @@ export default function EditProfile({route}){
         }
        
 
-        const csrfToken = await AsyncStorage.getItem('csrf-token');
         const response = await fetch(envVariables.serverURL +"/user/changeUserInfo", {
             method: "POST",
             headers: {
@@ -91,6 +96,9 @@ export default function EditProfile({route}){
                 dispatch(setUserInfo({...formData}))
             }
             navigation.goBack()
+        }
+        else if (response.status === 401){
+            setLoggedIn(false)
         }
     }
 
@@ -119,7 +127,7 @@ export default function EditProfile({route}){
                     <FormLabel bold>Username</FormLabel>
                 </View>
                 <View style={styles.input}>
-                    <FormInput keyboardType={Platform.OS === 'ios' ? 'ascii-capable' : 'visible-password'} placeholder='Username' placeholderTextColor="gray" value ={formData.username} onChangeText={(val) => setFormData({...formData, username:val.toLowerCase()})}></FormInput>
+                    <FormInput keyboardType={Platform.OS === 'ios' ? 'ascii-capable' : 'visible-password'} placeholder='Username' placeholderTextColor="gray" value ={formData.username} onChangeText={(val) => handleUsername(val)}></FormInput>
                     {formData.username.length > 20 && <StyledText error>20 characters or less</StyledText>}
                     {formData.username.length === 0 && <StyledText error>Username must be nonempty</StyledText>}
                 </View>

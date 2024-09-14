@@ -34,8 +34,9 @@ export default function Login(){
                 password: password
             }),
         })
-        const respJson = await resp.json()
-        if(respJson.response === "good"){
+        
+        if(resp.status === 200){
+            const respJson = await resp.json()
             await AsyncStorage.setItem('csrf-token', respJson.csrfToken);
             await AsyncStorage.setItem('uid', respJson.uid.toString());
             
@@ -45,7 +46,9 @@ export default function Login(){
             setLoggedIn(true)
         }
         else{
-            setCredentialErr(true)
+            if(resp.status === 401){
+                setCredentialErr(true)
+            }
         }
         
         // could render a loading screen here

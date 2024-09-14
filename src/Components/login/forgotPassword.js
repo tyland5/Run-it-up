@@ -33,19 +33,28 @@ export default function ForgotPassword({route}){
     async function setEmail(){
         // first check if an account with this email exists
         const res = await fetch(envVariables.serverURL + "/login/checkEmail?" + new URLSearchParams({email:formData.email}));
-        const resJson = await res.json();
+        let resJson = null;
+        if(res.status === 200){
+            resJson = await res.json();
+        }
+        else{
+            return
+        }
 
-        if(resJson.response === "bad" || !resJson.validEmail){
+        if(!resJson.validEmail){
             setShowErr({...showErr, email: true})
             return
         }
         setShowErr({...showErr, email: false})
+
         // if email is valid, get confirmation code and show change pass inputs
         const res2 = await fetch(envVariables.serverURL + "/login/confirmEmail?" + new URLSearchParams({email:formData.email}));
-        const resJson2 = await res2.json();
+        if(res2.status === 200){
+            const resJson2 = await res2.json();
 
-        setGeneratedCode(resJson2.confCode);
-        setEmailSelected(true);        
+            setGeneratedCode(resJson2.confCode);
+            setEmailSelected(true);
+        }        
     }
 
     async function handleConfirm(){
@@ -56,12 +65,13 @@ export default function ForgotPassword({route}){
         }
 
         let errPresent = false
+        const pwRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&^])[A-Za-z\d@.#$!%*?&]{8,16}$/
 
         if(formData.confirmCode !== generatedCode){
             errs.confirmCode = true
             errPresent = true
         }
-        if(formData.password.length < 12){
+        if(!pwRegex.test(formData.password)){
             errs.password = true
             errPresent = true
         }
@@ -82,7 +92,9 @@ export default function ForgotPassword({route}){
                 }) // Send the data in JSON format
               })
 
-            navigation.navigate("Login")
+            if(res.status === 200){
+                navigation.navigate("Login")
+            }
         }
     }
 
@@ -116,7 +128,7 @@ export default function ForgotPassword({route}){
             <StyledTextLabel>Password</StyledTextLabel>
             <StyledTextInput secureTextEntry = {true} placeholder='Password' placeholderTextColor="gray" value ={formData.password} onChangeText={(val) => setFormData({...formData, password:val})}></StyledTextInput>
             <View style= {styles.input_space}></View>
-            {showErr.password ? <StyledTextLabel error>Password must be at least 12 characters</StyledTextLabel> : <></>}
+            {showErr.password ? <StyledTextLabel error>{`At least one lowercase alphabet i.e. [a-z]\nAt least one uppercase alphabet i.e. [A-Z]\nAt least one Numeric digit i.e. [0-9]\nAt least one special character i.e. ['@', '$', '.', '#', '!', '%', '*', '?', '&', '^']\nTotal length must be in the range [8-16]`}</StyledTextLabel> : <></>}
             
             <StyledTextLabel>Confirm Password</StyledTextLabel>
             <StyledTextInput secureTextEntry = {true} placeholder='Confirm Password' placeholderTextColor="gray" value ={formData.confirmPassword} onChangeText={(val) => setFormData({...formData, confirmPassword:val})}></StyledTextInput>

@@ -8,7 +8,6 @@ import * as MediaLibrary from 'expo-media-library';
 import { hs, vs, ms } from '../global/responsiveScaling';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { StyledButton, StyledText } from '../global/styledComponents';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../login/authContext';
 
 const envVariables = require('../../../envVariables.json');
@@ -24,7 +23,7 @@ export default function MakePost({media}){
     const [thumbnailHeight, setThumbnailHeight] = useState(0)
     const [caption, setCaption] = useState('');
     const bottomTabBarHeight = useBottomTabBarHeight(); 
-    const {loggedIn, setLoggedIn, selfUid} = useContext(AuthContext);
+    const {loggedIn, setLoggedIn, selfUid, csrfToken} = useContext(AuthContext);
 
     useEffect(() => {
 
@@ -67,7 +66,6 @@ export default function MakePost({media}){
             })
         }
        
-        const csrfToken = await AsyncStorage.getItem('csrf-token')
         const response = await fetch(envVariables.serverURL +"/post/makePost", {
             method: "POST",
             headers: {
@@ -79,6 +77,9 @@ export default function MakePost({media}){
 
         if(response.status === 401){
             setLoggedIn(false)
+            return
+        }
+        else if(response.status === 500){
             return
         }
 

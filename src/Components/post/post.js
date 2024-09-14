@@ -29,7 +29,7 @@ const Post = memo(function Post({data}){
         }
         return data.likeCount})
     const dispatch = useDispatch()
-    const {selfUid, csrfToken} = useContext(AuthContext)
+    const {selfUid, csrfToken, setLoggedIn} = useContext(AuthContext)
     const navigation = useNavigation();
     const { width, height } = Dimensions.get('window');
     const uris =  useMemo(() => {
@@ -40,7 +40,7 @@ const Post = memo(function Post({data}){
     }, [])
 
     useEffect(()=>{
-        console.log("rerendering from post 22222222")
+        console.log("rendering from post 22222222")
     }, [])
 
     useEffect(()=>{
@@ -88,6 +88,9 @@ const Post = memo(function Post({data}){
                 dispatch(likePost(payload))
             }
         }
+        else if(response.status === 401){
+            setLoggedIn(false)
+        }
     }
 
     // we set state to get rid of render in the feed without changing data and rerendering the entire list
@@ -107,13 +110,16 @@ const Post = memo(function Post({data}){
         if(response.status===200){
             setIsDeleted(true)
         }
+        else if(response.status === 401){
+            setLoggedIn(false)
+        }
     }
 
     const createDeletePostAlert = () =>
         Alert.alert('Delete Post', 'Are you sure you want to delete this post?', [
           {
             text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed'),
+            onPress: () => {},
             style: 'cancel',
           },
           {text: 'Delete', style:'destructive', onPress: () => deletePost()},
@@ -124,10 +130,10 @@ const Post = memo(function Post({data}){
             {!isDeleted && 
             <>
             <View style={styles.top_section}>
-                <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:data.uid})}>
+                <TouchableWithoutFeedback onPress={() => navigation.push("Profile", {uid:data.uid})}>
                     <Image style={styles.pfp} source={{uri:data.pfp}}/> 
                 </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", {uid:data.uid})}>
+                <TouchableWithoutFeedback onPress={() => navigation.push("Profile", {uid:data.uid})}>
                     <StyledText bold >{data.name}</StyledText>
                 </TouchableWithoutFeedback>
 
@@ -168,7 +174,7 @@ const Post = memo(function Post({data}){
                 scrollEnabled={uris.length > 1 ? true : false}
                 renderItem={({item, index})=>(
                     <>
-                    <TouchableWithoutFeedback onPress={() => navigation.navigate("MediaGallery" , {media: uris, index: index})}>
+                    <TouchableWithoutFeedback onPress={() => navigation.push("MediaGallery" , {media: uris, index: index})}>
                         <Image style={uris.length === 1 ? [styles.imageStyle, {width:width }] : [styles.imageStyle, {width:width * .9 *.9}]} source={{uri: item}}/>
                     </TouchableWithoutFeedback>
                     </>
