@@ -22,6 +22,7 @@ export const StyledText = styled.Text`
     `}
 
     margin: ${props=> props.margin ? props.margin : 0}px;
+    marginBottom: ${props=> props.marginBottom ? props.marginBottom : 0}px;
     fontWeight: ${props => props.bold ? "bold" : "normal"};
     ${props => props.underline && `textDecorationLine: underline;`}
 `;

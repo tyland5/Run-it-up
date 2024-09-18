@@ -20,6 +20,8 @@ import LoadingScreen from './src/Components/login/loadingScreen';
 import FollowPage from './src/Components/profile/followPage';
 import Settings from './src/Components/profile/settings';
 import Explore from './src/Components/explore/explore';
+import MakeEvent from './src/Components/explore/makeEvent';
+import EventDetails from './src/Components/explore/eventDetails';
 import { useEffect, useState, useContext } from 'react';
 import { AuthContext } from './src/Components/login/authContext';
 import { Provider } from 'react-redux';
@@ -46,7 +48,9 @@ const ExploreStack = createStackNavigator();
 function ExploreStackScreen(){
   return(
     <ExploreStack.Navigator>
-      <ExploreStack.Screen name = "ExploreHome" component={Explore}/>
+      <ExploreStack.Screen options = {{headerShown:false}} name = "ExploreHome" component={Explore}/>
+      <ExploreStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Make Event"/>}} name = "MakeEvent" component={MakeEvent}/>
+      <ExploreStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Event Details"/>}} name = "EventDetails" component={EventDetails}/>
     </ExploreStack.Navigator>
   )
 }
