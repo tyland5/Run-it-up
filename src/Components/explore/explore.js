@@ -7,6 +7,7 @@ import { hs, vs, ms } from "../global/responsiveScaling";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from "@react-navigation/native";
 import { AuthContext } from "../login/authContext";
+import * as Location from 'expo-location';
 
 const envVariables = require('../../../envVariables.json');
 
@@ -20,11 +21,16 @@ function CustomCalloutView({info}){
     return(
         <View style={styles.calloutContainer}>
             <View style={{flexDirection:'row', gap:hs(10)}}>
-                <Image style={{width: hs(40), height: vs(40), borderRadius: hs(40)}} source={{uri:info.pfp}} />
+                <TouchableWithoutFeedback onPress={() => navigation.push('Profile', {uid:info.uid})}>
+                    <Image style={{width: hs(40), height: vs(40), borderRadius: hs(40)}} source={{uri:info.pfp}} />
+                </TouchableWithoutFeedback>
+                
+                <TouchableWithoutFeedback onPress={() => navigation.push('Profile', {uid:info.uid})}>
                 <View>
                     <StyledText bold>{info.name}</StyledText>
                     <StyledText>@{info.username}</StyledText>
                 </View>
+                </TouchableWithoutFeedback>
             </View> 
 
             <StyledText>Event: {info.title}</StyledText>
@@ -52,29 +58,57 @@ const CustomMarker = memo(function CustomMarker({marker, index, active, handleMa
 }, (prevProps, nextProps) => {return prevProps.active === nextProps.active})
 
 
+
 export default function Explore({route}){
     const [allowNewMarker, setAllowNewMarker] = useState(false)
     const [markers, setMarkers] = useState([])
+    const [deletedMarkers, setDeletedMarkers] = useState([]) // ids of the deleted in here
+    const [showMap, setShowMap] = useState(false)
     const navigation = useNavigation()
     const {setLoggedIn} = useContext(AuthContext)
     const [showCallout, setShowCallout] = useState(false)
     const [markerInfo, setMarkerInfo] = useState({})
     const [activeId, setActiveId] = useState(0)
+    const [userLocation, setUserLocation] = useState({
+        latitude: 37.78825,
+        longitude: -122.4324,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+        showMap: false
+    })
 
     useEffect(()=>{
+        getUserLocation()
         getEvents()
     },[])
 
     useEffect(()=>{
         // undefined if not from make event
-        if(route.params){
+        // deleting event marker
+        if(route.params?.delete_id){
+            setDeletedMarkers([...deletedMarkers, route.params.delete_id])
+        }
+        // creating event marker
+        else if(route.params){
             setMarkers([...markers, route.params])
         }
     },[route.params])
 
+    
+  
+    // specifically for intial region. Note: Changing [initial region] after the component has mounted will not result in a region change.
+    // thats why we render the map only when we have the definitive initial region
+    async function getUserLocation(){
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if(status === "granted"){
+            const location = await Location.getCurrentPositionAsync({});
+            const coordinate = location.coords
+            setUserLocation({...userLocation, latitude:coordinate.latitude, longitude:coordinate.longitude, showMap : true});
+        }
+    }
 
     async function getEvents(){
-        const response = await fetch(envVariables.serverURL + "/event/getEvents?");
+        const response = await fetch(envVariables.serverURL + "/event/getEvents");
         
         if(response.status === 200){
             const respJson = await response.json()
@@ -101,14 +135,10 @@ export default function Explore({route}){
         <View style={styles.container}>
 
             {/* android map not in dark mode since uiStyle prop only works for ios. need to figure out solution*/}
-            <MapView style={styles.map} userInterfaceStyle='dark'
+            {userLocation.showMap && <MapView style={styles.map} userInterfaceStyle='dark'
                 provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
-                initialRegion={{
-                    latitude: 37.78825,
-                    longitude: -122.4324,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                }}
+                initialRegion={userLocation}
+                showsUserLocation={true}
                 onPress={(result) => {
                     // since on deselect is glitchy
                     if(activeId !== 0){
@@ -124,12 +154,14 @@ export default function Explore({route}){
 
                 {markers.map((marker, index) => {
                     // if i delete or add to markers, memoized components wont be rerendered
-                    
+                    if (deletedMarkers.includes(marker.event_id)){
+                        return (<></>)
+                    } 
                     return (<CustomMarker key={marker.event_id} marker={marker} index={marker.event_id} active={activeId === marker.event_id} 
                         handleMarkerPress={handleMarkerPress} setActiveId={setActiveId}/>)
                 })}
   
-            </MapView>
+            </MapView>}
 
             <TouchableWithoutFeedback onPress={() => {setAllowNewMarker(!allowNewMarker)}}>
                 <Ionicons style ={styles.addMarkerButton} name={allowNewMarker? "close-circle": "add-circle"} color={"orange"} size={ms(60)}></Ionicons>
