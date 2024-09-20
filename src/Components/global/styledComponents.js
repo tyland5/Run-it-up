@@ -22,6 +22,7 @@ export const StyledText = styled.Text`
     `}
 
     margin: ${props=> props.margin ? props.margin : 0}px;
+    marginBottom: ${props=> props.marginBottom ? props.marginBottom : 0}px;
     fontWeight: ${props => props.bold ? "bold" : "normal"};
     ${props => props.underline && `textDecorationLine: underline;`}
 `;
@@ -51,7 +52,7 @@ export const StyledTextLabel = styled(StyledText)`
 
 export const StyledButton = styled.Pressable`
     width: ${hs(90)}px;
-    height: ${vs(30)}px;
+    height: ${vs(40)}px;
     ${props => props.small && `
         width: ${hs(60)}px;
         height: ${vs(30)}px;

@@ -20,13 +20,15 @@ import LoadingScreen from './src/Components/login/loadingScreen';
 import FollowPage from './src/Components/profile/followPage';
 import Settings from './src/Components/profile/settings';
 import Explore from './src/Components/explore/explore';
+import MakeEvent from './src/Components/explore/makeEvent';
+import EventDetails from './src/Components/explore/eventDetails';
+import ParticipantList from './src/Components/explore/participantList';
 import { useEffect, useState, useContext } from 'react';
 import { AuthContext } from './src/Components/login/authContext';
 import { Provider } from 'react-redux';
 import store from "./src/Components/post/likedPostsStore"
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {hs, vs, ms} from "./src/Components/global/responsiveScaling";
-
 
 
 const LoginStack = createStackNavigator();
@@ -46,7 +48,17 @@ const ExploreStack = createStackNavigator();
 function ExploreStackScreen(){
   return(
     <ExploreStack.Navigator>
-      <ExploreStack.Screen name = "ExploreHome" component={Explore}/>
+      <ExploreStack.Screen options = {{headerShown:false}} name = "ExploreHome" component={Explore}/>
+      <ExploreStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Make Event"/>}} name = "MakeEvent" component={MakeEvent}/>
+      <ExploreStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Event Details"/>}} name = "EventDetails" component={EventDetails}/>
+      <ExploreStack.Screen options = {{header: () => <TopNav hasBackArrow ={true} title="Participants" />}} name="ParticipantList" component={ParticipantList} />
+
+      <ExploreStack.Screen options = {{header: () => <TopNav hasBackArrow ={true} title="Comments" />}} name="Comments" component={CommentSection} />
+      <ExploreStack.Screen options = {{headerShown:false}} name="MediaGallery" component={MediaGallery}/>
+      <ExploreStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Profile" hasSettings={true}/>}} name="Profile" component={Profile} />
+      <ExploreStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Profile"/>}} name="FollowPage" component={FollowPage} />
+      <ExploreStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Edit Profile" />}} name="EditProfile" component={EditProfile} />
+      <ExploreStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Settings"/>}} name="Settings" component={Settings} />
     </ExploreStack.Navigator>
   )
 }
@@ -59,7 +71,7 @@ function HomeStackScreen() {
       <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Post"/>}} name="ExpandedPost" component={ExpandedPost} />
       <HomeStack.Screen options = {{headerShown:false}} name="MakePost" component={MakePost} />
       <HomeStack.Screen options = {{header: () => <TopNav hasBackArrow ={true} title="Comments" />}} name="Comments" component={CommentSection} />
-      <LoginStack.Screen options = {{headerShown:false}} name="MediaGallery" component={MediaGallery}/>
+      <HomeStack.Screen options = {{headerShown:false}} name="MediaGallery" component={MediaGallery}/>
       <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Profile" hasSettings={true}/>}} name="Profile" component={Profile} />
       <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Profile"/>}} name="FollowPage" component={FollowPage} />
       <HomeStack.Screen options= {{header: () => <TopNav hasBackArrow ={true} title="Edit Profile" />}} name="EditProfile" component={EditProfile} />
@@ -72,6 +84,11 @@ function HomeStackScreen() {
 const Tab = createBottomTabNavigator();
 
 function AppTabs(){
+
+  /* if i wanted to hide bottom nav on certain screens
+  tabBarStyle: getFocusedRouteNameFromRoute(route) === 'EventDetails' ? {display:'none'} : {backgroundColor: "#121212", height: vs(79, .25)}
+  */
+
   return(
     <Tab.Navigator screenOptions={{ headerShown: false, tabBarStyle:{backgroundColor: "#121212", height: vs(79, .25)}, tabBarHideOnKeyboard: true, 
     tabBarActiveTintColor: "#F57600", tabBarInactiveTintColor: "white", tabBarLabelStyle: {fontSize: ms(14)}}}>
@@ -82,9 +99,9 @@ function AppTabs(){
       }}/>
 
       <Tab.Screen name="Explore" component={ExploreStackScreen} 
-      options={{tabBarShowLabel: false,
+      options={({route}) => ({tabBarShowLabel: false,
         tabBarIcon: ({color}) => (<Ionicons name="search" size= {ms(30)} color= {color}/>)
-      }}/>
+      })}/>
 
     </Tab.Navigator>
   )
